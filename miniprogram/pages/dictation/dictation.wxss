@@ -1,0 +1,321 @@
+/* 听写页面 - 玻璃拟态 */
+
+.dictation-bg {
+  min-height: 100vh;
+  background: linear-gradient(175deg, #C8E6C9 0%, #E8F5E9 30%, #F1F8F4 100%);
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+/* ===== 顶部行 ===== */
+.dictation-top {
+  display: flex;
+  align-items: center;
+  padding: 24rpx 32rpx;
+  gap: 12rpx;
+}
+
+.dictation-title {
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #2C3E2D;
+}
+
+.dictation-progress {
+  font-size: 22rpx;
+  color: #8A9B8B;
+}
+
+.top-spacer {
+  flex: 1;
+}
+
+/* 间隔选择 */
+.interval-group {
+  display: flex;
+  gap: 10rpx;
+}
+
+.interval-btn {
+  font-size: 24rpx;
+  color: #8A9B8B;
+  padding: 8rpx 18rpx;
+  border-radius: 16rpx;
+  background: rgba(255, 255, 255, 0.55);
+  font-weight: 500;
+}
+
+/* ===== 主内容区 ===== */
+.dictation-main {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 40rpx;
+}
+
+.dictation-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+}
+
+/* 发音按钮 */
+.audio-btn {
+  width: 120rpx;
+  height: 120rpx;
+  border-radius: 60rpx;
+  background: #E8F5E9;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4rpx 20rpx rgba(67, 160, 71, 0.12);
+}
+
+.audio-btn:active {
+  transform: scale(0.94);
+  opacity: 0.8;
+}
+
+.audio-triangle {
+  width: 0;
+  height: 0;
+  border-top: 24rpx solid transparent;
+  border-bottom: 24rpx solid transparent;
+  border-left: 36rpx solid #43A047;
+  margin-left: 8rpx;
+}
+
+.audio-label {
+  font-size: 24rpx;
+  color: #8A9B8B;
+  margin-top: 18rpx;
+}
+
+/* 单词展示 */
+.word-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 56rpx;
+}
+
+.dict-word {
+  font-size: 88rpx;
+  font-weight: 700;
+  color: #1A1A1A;
+  letter-spacing: 1rpx;
+  margin-bottom: 16rpx;
+}
+
+.dict-phonetic {
+  font-size: 32rpx;
+  font-weight: 500;
+  margin-bottom: 20rpx;
+}
+
+.dict-meaning {
+  font-size: 44rpx;
+  font-weight: 600;
+  color: #1A1A1A;
+}
+
+/* 隐藏区 */
+.hidden-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 56rpx;
+}
+
+.hidden-tip {
+  font-size: 36rpx;
+  color: #8A9B8B;
+}
+
+.hidden-hint {
+  font-size: 24rpx;
+  color: #B0B8B0;
+  margin-top: 12rpx;
+}
+
+/* 空状态 */
+.empty-card {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.empty-tip {
+  font-size: 32rpx;
+  color: #8A9B8B;
+}
+
+/* ===== 底部操作栏 ===== */
+.dictation-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  padding: 24rpx 40rpx 44rpx;
+  flex-shrink: 0;
+}
+
+.bar-item {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12rpx;
+}
+
+.bar-item:active {
+  opacity: 0.5;
+}
+
+.bar-text {
+  font-size: 26rpx;
+  color: #4A5B4B;
+  font-weight: 500;
+}
+
+.bar-play {
+  width: 88rpx;
+  height: 88rpx;
+  border-radius: 44rpx;
+  background: #E8F5E9;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.bar-play:active {
+  opacity: 0.7;
+  transform: scale(0.92);
+}
+
+.play-shape {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.play-shape.play {
+  width: 0;
+  height: 0;
+  border-top: 20rpx solid transparent;
+  border-bottom: 20rpx solid transparent;
+  border-left: 30rpx solid #43A047;
+  margin-left: 6rpx;
+}
+
+.play-shape.pause {
+  display: flex;
+  gap: 10rpx;
+}
+
+.pause-bar {
+  width: 8rpx;
+  height: 34rpx;
+  background: #43A047;
+  border-radius: 4rpx;
+}
+
+/* skip 图标 */
+.skip-icon {
+  display: flex;
+  align-items: center;
+}
+
+.skip-bar {
+  width: 5rpx;
+  height: 36rpx;
+  border-radius: 3rpx;
+}
+
+.skip-tri {
+  width: 0;
+  height: 0;
+  border-top: 14rpx solid transparent;
+  border-bottom: 14rpx solid transparent;
+}
+
+.skip-prev .skip-tri {
+  border-right: 16rpx solid;
+}
+
+.skip-next .skip-tri {
+  border-left: 16rpx solid;
+}
+
+/* ===== 弹窗 ===== */
+.mask {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.4);
+  z-index: 99;
+}
+
+.word-list-popup {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 85%;
+  max-height: 70vh;
+  background: #FFFFFF;
+  border-radius: 28rpx;
+  z-index: 100;
+  box-shadow: 0 8rpx 36rpx rgba(0, 0, 0, 0.12);
+  overflow: hidden;
+}
+
+.popup-header {
+  padding: 28rpx 32rpx;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1rpx solid #F0F0F0;
+}
+
+.popup-title {
+  font-size: 30rpx;
+  color: #2C3E2D;
+  font-weight: 600;
+}
+
+.close-btn {
+  font-size: 40rpx;
+  color: #8A9B8B;
+  width: 56rpx;
+  height: 56rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.list-content {
+  padding: 16rpx 32rpx;
+  max-height: 60vh;
+}
+
+.list-item {
+  padding: 22rpx 0;
+  border-bottom: 1rpx solid #F5F5F5;
+}
+
+.list-en {
+  font-size: 32rpx;
+  color: #2C3E2D;
+  display: block;
+  margin-bottom: 4rpx;
+  font-weight: 500;
+}
+
+.list-meaning {
+  font-size: 24rpx;
+  color: #8A9B8B;
+}

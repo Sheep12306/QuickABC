@@ -1,0 +1,86 @@
+Page({
+    data: {
+      lastVocabScore: 0,
+      vocabHistory: [],
+      themeColors: [
+        { accent: '#43A047', light: '#E8F5E9' },
+        { accent: '#00897B', light: '#E0F2F1' },
+        { accent: '#F57C00', light: '#FFF3E0' },
+        { accent: '#7B1FA2', light: '#F3E5F5' },
+        { accent: '#1976D2', light: '#E3F2FD' }
+      ],
+      themeIdx: 0,
+      cardThemes: [
+        { bg: 'linear-gradient(175deg, #C8E6C9 0%, #E8F5E9 30%, #F1F8F4 100%)' },
+        { bg: 'linear-gradient(175deg, #B2DFDB 0%, #E0F2F1 30%, #F1F8F7 100%)' },
+        { bg: 'linear-gradient(175deg, #FFE0B2 0%, #FFF3E0 30%, #FFF8F5 100%)' },
+        { bg: 'linear-gradient(175deg, #E1BEE7 0%, #F3E5F5 30%, #F8F4FA 100%)' },
+        { bg: 'linear-gradient(175deg, #BBDEFB 0%, #E3F2FD 30%, #F5F8FC 100%)' }
+      ]
+    },
+
+    onLoad() {
+      this.setData({ themeIdx: getApp().globalData.cardThemeIndex || 0 });
+      this.initCloud();
+      this.getVocabTestRecords();
+    },
+
+    onShow() {
+      this.setData({ themeIdx: getApp().globalData.cardThemeIndex || 0 });
+    },
+
+    initCloud() {
+      if (!wx.cloud) {
+        wx.showToast({ title: '微信版本过低', icon: 'none' });
+        return;
+      }
+      wx.cloud.init({
+        env: 'cloud1-1gfs1z6a4027d442',
+        traceUser: true
+      });
+    },
+
+    async getVocabTestRecords() {
+      wx.showLoading({ title: '加载中...' });
+      try {
+        const openid = wx.getStorageSync('openid');
+        if (!openid) {
+          wx.showToast({ title: '请先登录', icon: 'none' });
+          return;
+        }
+        const res = await wx.cloud.callFunction({
+          name: 'saveVocabTest',
+          data: { action: 'get', openid: openid }
+        });
+        if (res.result?.code === 200) {
+          const records = res.result.data || [];
+          const vocabHistory = records.map(record => ({
+            testTime: record.testTime,
+            score: record.score
+          }));
+          const lastVocabScore = vocabHistory.length > 0 ? vocabHistory[0].score : 0;
+          this.setData({ lastVocabScore, vocabHistory });
+          wx.setStorageSync('lastVocabScore', lastVocabScore);
+          wx.setStorageSync('vocabHistory', vocabHistory);
+        } else {
+          wx.showToast({ title: res.result?.msg || '获取记录失败', icon: 'none' });
+        }
+      } catch (err) {
+        console.error('获取词汇量测试记录失败', err);
+        wx.showToast({ title: '获取记录失败', icon: 'none' });
+        const lastVocabScore = wx.getStorageSync('lastVocabScore') || 0;
+        const vocabHistory = wx.getStorageSync('vocabHistory') || [];
+        this.setData({ lastVocabScore, vocabHistory });
+      } finally {
+        wx.hideLoading();
+      }
+    },
+
+    goBack() {
+      wx.navigateBack();
+    },
+
+    goToVocabTest() {
+      wx.navigateTo({ url: '/pages/vocab-Test/vocab-Test' });
+    }
+  });

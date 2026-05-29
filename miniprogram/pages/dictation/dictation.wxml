@@ -1,0 +1,86 @@
+<view class="dictation-bg" style="background:{{cardThemes[themeIdx].bg}};">
+  <!-- 顶部行 -->
+  <view class="dictation-top">
+    <text class="dictation-title">单词听写</text>
+    <text class="dictation-progress">{{wordProgress}}</text>
+    <view class="top-spacer"></view>
+    <view class="interval-group">
+      <text class="interval-btn {{playInterval === 5 ? 'active' : ''}}" data-interval="5" bindtap="selectPlayInterval"
+            style="{{playInterval === 5 ? 'background:' + themeColors[themeIdx].accent + ';color:#fff;' : ''}}">5s</text>
+      <text class="interval-btn {{playInterval === 10 ? 'active' : ''}}" data-interval="10" bindtap="selectPlayInterval"
+            style="{{playInterval === 10 ? 'background:' + themeColors[themeIdx].accent + ';color:#fff;' : ''}}">10s</text>
+      <text class="interval-btn {{playInterval === 15 ? 'active' : ''}}" data-interval="15" bindtap="selectPlayInterval"
+            style="{{playInterval === 15 ? 'background:' + themeColors[themeIdx].accent + ';color:#fff;' : ''}}">15s</text>
+    </view>
+  </view>
+
+  <!-- 主内容区 -->
+  <view class="dictation-main">
+    <view class="dictation-card" wx:if="{{currentWord.en}}">
+      <!-- 发音按钮 -->
+      <view class="audio-btn" bindtap="playCurrentAudio" style="background:{{themeColors[themeIdx].light}};">
+        <view class="audio-triangle" style="border-left-color:{{themeColors[themeIdx].accent}};"></view>
+      </view>
+      <text class="audio-label">点击播放发音</text>
+
+      <!-- 单词展示区 -->
+      <view class="word-section" wx:if="{{wordsVisible}}">
+        <text class="dict-word">{{currentWord.en}}</text>
+        <text class="dict-phonetic" style="color:{{themeColors[themeIdx].accent}};">[{{currentWord.phonetic}}]</text>
+        <text class="dict-meaning">{{currentWord.meaning}}</text>
+      </view>
+      <view class="hidden-section" wx:else>
+        <text class="hidden-tip">单词已隐藏</text>
+        <text class="hidden-hint">点击下方眼睛按钮显示</text>
+      </view>
+    </view>
+    <view class="empty-card" wx:else>
+      <text class="empty-tip">暂无听写单词</text>
+    </view>
+  </view>
+
+  <!-- 底部操作栏 -->
+  <view class="dictation-bar">
+    <view class="bar-item" bindtap="showWordList">
+      <text class="bar-text">列表</text>
+    </view>
+    <view class="bar-item" bindtap="prevWord">
+      <view class="skip-icon skip-prev">
+        <view class="skip-bar" style="background:{{themeColors[themeIdx].accent}};"></view>
+        <view class="skip-tri" style="border-right-color:{{themeColors[themeIdx].accent}};"></view>
+      </view>
+    </view>
+    <view class="bar-play" bindtap="togglePlay" style="background:{{themeColors[themeIdx].light}};">
+      <view class="play-shape {{isPlaying ? 'pause' : 'play'}}" style="{{isPlaying ? '' : 'border-left-color:' + themeColors[themeIdx].accent + ';'}}">
+        <block wx:if="{{isPlaying}}">
+          <view class="pause-bar" style="background:{{themeColors[themeIdx].accent}};"></view>
+          <view class="pause-bar" style="background:{{themeColors[themeIdx].accent}};"></view>
+        </block>
+      </view>
+    </view>
+    <view class="bar-item" bindtap="nextWord">
+      <view class="skip-icon skip-next">
+        <view class="skip-tri" style="border-left-color:{{themeColors[themeIdx].accent}};"></view>
+        <view class="skip-bar" style="background:{{themeColors[themeIdx].accent}};"></view>
+      </view>
+    </view>
+    <view class="bar-item" bindtap="toggleVisible">
+      <text class="bar-text">{{wordsVisible ? '隐藏' : '显示'}}</text>
+    </view>
+  </view>
+
+  <!-- 单词列表弹窗 -->
+  <view class="mask" wx:if="{{showList}}" bindtap="hideWordList"></view>
+  <view class="word-list-popup" wx:if="{{showList}}">
+    <view class="popup-header">
+      <text class="popup-title">{{currentDate}} 单词列表</text>
+      <text class="close-btn" bindtap="hideWordList">×</text>
+    </view>
+    <scroll-view class="list-content" scroll-y>
+      <view class="list-item" wx:for="{{words}}" wx:key="id" data-index="{{index}}" bindtap="selectWordFromList">
+        <text class="list-en {{index===currentIndex ? 'active' : ''}}" style="{{index===currentIndex ? 'color:' + themeColors[themeIdx].accent + ';' : ''}}">{{item.en}}</text>
+        <text class="list-meaning">{{item.meaning}}</text>
+      </view>
+    </scroll-view>
+  </view>
+</view>

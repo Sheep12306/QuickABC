@@ -1,0 +1,141 @@
+/* 个人资料页 - 玻璃拟态 */
+
+.profile-container {
+  min-height: 100vh;
+  padding: 28rpx;
+  box-sizing: border-box;
+}
+
+/* ===== 头像卡片 ===== */
+.avatar-card {
+  background: rgba(255, 255, 255, 0.62);
+  border-radius: 36rpx;
+  border: 1rpx solid rgba(255, 255, 255, 0.65);
+  box-shadow: 0 4rpx 20rpx rgba(46, 125, 50, 0.06);
+  padding: 44rpx 0 36rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 20rpx;
+}
+
+.avatar-card:active {
+  opacity: 0.85;
+}
+
+.avatar-img {
+  width: 140rpx;
+  height: 140rpx;
+  border-radius: 70rpx;
+  background: #E8E8E8;
+  box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.08);
+}
+
+.avatar-hint {
+  display: flex;
+  align-items: center;
+  margin-top: 20rpx;
+  gap: 10rpx;
+}
+
+.avatar-hint-icon {
+  width: 36rpx;
+  height: 36rpx;
+  border-radius: 18rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.avatar-plus {
+  font-size: 24rpx;
+  color: #FFFFFF;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.avatar-hint-text {
+  font-size: 24rpx;
+  color: #8A9B8B;
+}
+
+/* ===== 表单卡片 ===== */
+.form-card {
+  background: rgba(255, 255, 255, 0.62);
+  border-radius: 28rpx;
+  border: 1rpx solid rgba(255, 255, 255, 0.65);
+  box-shadow: 0 4rpx 20rpx rgba(46, 125, 50, 0.06);
+  padding: 0 28rpx;
+  margin-bottom: 48rpx;
+}
+
+.form-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 28rpx 0;
+  border-bottom: 1rpx solid rgba(46, 125, 50, 0.06);
+}
+
+.form-item-last {
+  border-bottom: none;
+}
+
+.form-label {
+  font-size: 30rpx;
+  color: #2C3E2D;
+  font-weight: 500;
+  flex-shrink: 0;
+  width: 120rpx;
+}
+
+.form-input {
+  flex: 1;
+  text-align: right;
+  font-size: 28rpx;
+  color: #2C3E2D;
+}
+
+.picker-display {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+}
+
+.picker-selected {
+  font-size: 28rpx;
+  color: #2C3E2D;
+}
+
+.picker-placeholder {
+  font-size: 28rpx;
+  color: #B0B8B0;
+}
+
+.picker-arrow {
+  font-size: 28rpx;
+  font-weight: 600;
+}
+
+/* ===== 保存按钮 ===== */
+.save-btn {
+  width: 100%;
+  padding: 28rpx 0;
+  border-radius: 24rpx;
+  text-align: center;
+  box-shadow: 0 8rpx 24rpx rgba(46, 125, 50, 0.18);
+}
+
+.save-btn:active {
+  opacity: 0.85;
+}
+
+.save-btn.saving {
+  opacity: 0.7;
+}
+
+.save-text {
+  font-size: 34rpx;
+  font-weight: 600;
+  color: #FFFFFF;
+}

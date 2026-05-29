@@ -1,0 +1,32 @@
+<view class="mode-container" style="background:{{cardThemes[themeIdx].bg}};">
+  <view class="mode-top">
+    <text class="mode-title">抗遗忘复习</text>
+  </view>
+
+  <scroll-view class="mode-scroll" scroll-y wx:if="{{dateWordList.length > 0}}">
+    <view class="mode-card" wx:for="{{dateWordList}}" wx:key="date"
+          data-date="{{item.date}}" data-words="{{item.words}}" data-index="{{index}}"
+          bindtap="goToDateReview">
+      <view class="mode-card-left">
+        <text class="mode-date">{{item.date}}</text>
+        <text class="mode-count">共{{item.words.length}}个单词</text>
+      </view>
+      <view class="mode-card-right">
+        <view class="mode-tag" style="background:{{themeColors[themeIdx].light}};">
+          <text class="mode-tag-num" style="color:{{themeColors[themeIdx].accent}};">{{item.checkCount || 0}}</text>
+        </view>
+        <view class="mode-status {{item.isCheckIn ? 'checked' : 'unchecked'}}"
+              style="{{item.isCheckIn ? 'background:' + themeColors[themeIdx].light + ';' : ''}}">
+          <text class="mode-status-text" style="{{item.isCheckIn ? 'color:' + themeColors[themeIdx].accent + ';' : ''}}">
+            {{item.isCheckIn ? '已打卡' : '未打卡'}}
+          </text>
+        </view>
+      </view>
+    </view>
+    <view class="scroll-bottom-space"></view>
+  </scroll-view>
+
+  <view class="mode-empty" wx:else>
+    <text>暂无抗遗忘计划</text>
+  </view>
+</view>

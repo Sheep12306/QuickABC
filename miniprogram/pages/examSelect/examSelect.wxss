@@ -1,0 +1,65 @@
+.exam-select-container {
+    min-height: 100vh;
+    background: #f5f7fa;
+    padding: 20rpx;
+    box-sizing: border-box;
+  }
+  
+  /* 优化顶部：移除返回键，标题居左 */
+  .header {
+    margin-bottom: 30rpx;
+    padding: 10rpx 0;
+  }
+  .title {
+    font-size: 36rpx;
+    font-weight: bold;
+    color: #333333;
+    text-align: left; /* 强制居左 */
+    margin-left: 10rpx;
+  }
+  
+  .scope-list {
+    background: #ffffff;
+    border-radius: 16rpx;
+    padding: 20rpx;
+    box-shadow: 0 4rpx 12rpx rgba(0,0,0,0.08);
+    margin-bottom: 30rpx;
+  }
+  .scope-item {
+    padding: 25rpx 10rpx;
+    border-bottom: 1rpx solid #f0f0f0;
+  }
+  .scope-item:last-child {
+    border-bottom: none;
+  }
+  .checkbox-label {
+    display: flex;
+    align-items: center;
+  }
+  checkbox {
+    transform: scale(1.2);
+    margin-right: 20rpx;
+  }
+  .scope-name {
+    font-size: 30rpx;
+    color: #333333;
+  }
+  .count-tip {
+    font-size: 26rpx;
+    color: #666666;
+    text-align: center;
+    margin-bottom: 30rpx;
+  }
+  .start-btn {
+    width: 100%;
+    background: linear-gradient(to right, #4CAF50, #2E7D32);
+    color: #ffffff;
+    border: none;
+    border-radius: 12rpx;
+    padding: 30rpx;
+    font-size: 32rpx;
+  }
+  .start-btn[disabled] {
+    background: #cccccc;
+    color: #999999;
+  }

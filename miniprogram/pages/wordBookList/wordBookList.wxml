@@ -1,0 +1,93 @@
+<view class="vocab-container" style="background:{{cardThemes[themeIdx].bg}};">
+  <!-- 顶部栏 -->
+  <view class="vocab-top">
+    <text class="vocab-title">生词本</text>
+    <view class="top-spacer"></view>
+    <view class="top-action" bindtap="toggleSearch">
+      <text class="top-action-text" style="color:{{themeColors[themeIdx].accent}};">搜索</text>
+    </view>
+    <view class="top-action" bindtap="addNewWord">
+      <text class="top-action-text" style="color:{{themeColors[themeIdx].accent}};">添加</text>
+    </view>
+  </view>
+
+  <!-- 搜索栏 -->
+  <view class="search-bar" wx:if="{{showSearch}}">
+    <input class="search-input" placeholder="按英文搜索生词..." value="{{searchKeyword}}"
+           bindinput="onSearchInput" bindconfirm="onSearchConfirm" focus="{{showSearch}}"/>
+    <text class="search-cancel" bindtap="toggleSearch">取消</text>
+  </view>
+
+  <!-- 统计行 -->
+  <view class="vocab-stats" wx:if="{{vocabList.length > 0}}">
+    <text class="stats-text">共 {{vocabList.length}} 个生词</text>
+    <text class="stats-action" bindtap="batchDelete" wx:if="{{vocabList.length > 0}}">批量管理</text>
+  </view>
+
+  <!-- 生词列表 -->
+  <scroll-view class="vocab-scroll" scroll-y wx:if="{{vocabList.length > 0}}">
+    <view class="vocab-card" wx:for="{{vocabList}}" wx:key="en" data-index="{{index}}">
+      <view class="vocab-card-left" bindtap="viewWordDetail" data-index="{{index}}">
+        <text class="vocab-en">{{item.en}}</text>
+        <view class="vocab-meta">
+          <text class="vocab-phonetic" style="color:{{themeColors[themeIdx].accent}};">[{{item.phonetic}}]</text>
+          <text class="vocab-part" wx:if="{{item.part}}">{{item.part}}</text>
+        </view>
+        <text class="vocab-meaning">{{item.meaning}}</text>
+      </view>
+      <view class="vocab-card-right">
+        <view class="vocab-action mastered" bindtap="markMastered" data-index="{{index}}"
+              style="background:{{themeColors[themeIdx].light}};">
+          <text class="vocab-action-text" style="color:{{themeColors[themeIdx].accent}};">掌握</text>
+        </view>
+        <view class="vocab-action delete" bindtap="deleteWord" data-index="{{index}}">
+          <text class="vocab-action-text delete-text">删除</text>
+        </view>
+      </view>
+    </view>
+    <view class="scroll-bottom-space"></view>
+  </scroll-view>
+
+  <!-- 空状态 -->
+  <view class="vocab-empty" wx:else>
+    <view class="empty-icon-circle" style="background:{{themeColors[themeIdx].light}};">
+      <text class="empty-icon-text" style="color:{{themeColors[themeIdx].accent}};">V</text>
+    </view>
+    <text class="empty-title">暂无生词</text>
+    <text class="empty-desc">快去添加你的第一个生词吧</text>
+    <view class="empty-add-btn" bindtap="addNewWord" style="background:{{themeColors[themeIdx].accent}};">
+      <text class="empty-add-text">添加生词</text>
+    </view>
+  </view>
+
+  <!-- 批量管理模式 -->
+  <view class="batch-bar" wx:if="{{batchMode}}">
+    <view class="batch-select-all" bindtap="selectAllWords">
+      <text class="batch-all-text">{{allSelected ? '取消全选' : '全选'}}</text>
+    </view>
+    <text class="batch-count">已选 {{selectedCount}} 个</text>
+    <view class="batch-delete-btn" bindtap="batchDeleteConfirm" wx:if="{{selectedCount > 0}}">
+      <text class="batch-delete-text">删除选中</text>
+    </view>
+    <view class="batch-cancel" bindtap="exitBatchMode">
+      <text class="batch-cancel-text">完成</text>
+    </view>
+  </view>
+
+  <!-- 添加生词弹窗 -->
+  <view class="mask" wx:if="{{showAddModal}}" bindtap="hideAddModal"></view>
+  <view class="add-modal" wx:if="{{showAddModal}}">
+    <text class="modal-title">添加生词</text>
+    <input class="modal-input" placeholder="输入英文单词" value="{{newWordEn}}" bindinput="onEnInput"/>
+    <input class="modal-input" placeholder="输入音标（可选）" value="{{newWordPhonetic}}" bindinput="onPhoneticInput"/>
+    <input class="modal-input" placeholder="输入释义" value="{{newWordMeaning}}" bindinput="onMeaningInput"/>
+    <view class="modal-btns">
+      <view class="modal-btn cancel" bindtap="hideAddModal">
+        <text>取消</text>
+      </view>
+      <view class="modal-btn confirm" bindtap="confirmAddWord" style="background:{{themeColors[themeIdx].accent}};">
+        <text>确认添加</text>
+      </view>
+    </view>
+  </view>
+</view>

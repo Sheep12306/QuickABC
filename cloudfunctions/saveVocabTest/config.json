@@ -1,0 +1,24 @@
+{
+  "permissions": {
+    "openapi": [],
+    "db": {
+      "cloudbase": {
+        "env": "cloud1-1gfs1z6a4027d442",
+        "collection": [
+          {
+            "name": "vocabTestRecords",
+            "crud": "rw"
+          },
+          {
+            "name": "users",
+            "crud": "rw"
+          }
+        ]
+      }
+    }
+  },
+  "runtime": "Node.js 18.0",
+  "memory": 256,
+  "timeout": 5,
+  "envId": "cloud1-1gfs1z6a4027d442"
+}

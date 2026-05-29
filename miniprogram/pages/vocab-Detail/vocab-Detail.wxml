@@ -1,0 +1,27 @@
+<view class="detail-container" style="background:{{cardThemes[themeIdx].bg}};">
+  <!-- 上次测试分数 -->
+  <view class="score-card">
+    <text class="score-label">上次测试词汇量</text>
+    <text class="score-num" style="color:{{themeColors[themeIdx].accent}};">{{lastVocabScore || 0}}</text>
+    <view class="test-btn" bindtap="goToVocabTest" style="background:{{themeColors[themeIdx].accent}};">
+      <text class="test-btn-text">测试我的词汇量</text>
+    </view>
+  </view>
+
+  <!-- 历史记录 -->
+  <view class="history-card">
+    <text class="history-title">历史测试记录</text>
+    <view class="no-history" wx:if="{{vocabHistory.length === 0}}">
+      <text>暂无词汇量测试记录，快去测试吧</text>
+    </view>
+    <view class="history-list" wx:else>
+      <view class="history-item" wx:for="{{vocabHistory}}" wx:key="index">
+        <view class="item-left">
+          <text class="test-time">{{item.testTime}}</text>
+          <text class="test-desc">词汇量测试</text>
+        </view>
+        <text class="test-score" style="color:{{themeColors[themeIdx].accent}};">{{item.score}} 个</text>
+      </view>
+    </view>
+  </view>
+</view>

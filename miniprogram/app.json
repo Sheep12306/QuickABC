@@ -1,0 +1,61 @@
+{
+  "pages": [
+    "pages/index/index",
+    "pages/discover/discover",
+    "pages/profile/profile",
+    "pages/course-detail/course-detail",
+    "pages/game/game",
+    "pages/settings/settings",
+    "components/course-item/ciourse-item",
+    "pages/learn/learn",
+    "pages/review/review",
+    "pages/new-word-review/new-word-review",
+    "pages/review-mode/review-mode",
+    "pages/review-date/review-date",
+    "pages/test-list/test-list",
+    "pages/dictation/dictation",
+    "pages/my/my",
+    "pages/vocab-Detail/vocab-Detail",
+    "pages/vocab-Test/vocab-Test",
+    "pages/studySetting/studySetting",
+    "pages/studyRecord/studyRecord",
+    "pages/levelAnswer/levelAnswer",
+    "pages/examSelect/examSelect",
+    "pages/examAnswer/examAnswer",
+    "pages/wordBookList/wordBookList"
+  ],
+  "window": {
+    "navigationBarTitleText": "快背单词",
+    "navigationBarBackgroundColor": "#FFFFFF",
+    "navigationBarTextStyle": "black",
+    "backgroundColor": "#F0F7F0"
+  },
+  "tabBar": {
+    "color": "#999999",
+    "selectedColor": "#43A047",
+    "backgroundColor": "#ffffff",
+    "borderStyle": "black",
+    "list": [
+      {
+        "pagePath": "pages/index/index",
+        "text": "单词",
+        "iconPath": "images/tab/word.png",
+        "selectedIconPath": "images/tab/word-active.png"
+      },
+      {
+        "pagePath": "pages/discover/discover",
+        "text": "发现",
+        "iconPath": "images/tab/discover.png",
+        "selectedIconPath": "images/tab/discover-active.png"
+      },
+      {
+        "pagePath": "pages/my/my",
+        "text": "我的",
+        "iconPath": "images/tab/my.png",
+        "selectedIconPath": "images/tab/my-active.png"
+      }
+    ]
+  },
+  "style": "v2",
+  "sitemapLocation": "sitemap.json"
+}

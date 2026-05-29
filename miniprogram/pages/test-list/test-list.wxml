@@ -1,0 +1,27 @@
+<view class="mode-container" style="background:{{cardThemes[themeIdx].bg}};">
+  <view class="mode-top">
+    <text class="mode-title">单词听写</text>
+  </view>
+
+  <scroll-view class="mode-scroll" scroll-y wx:if="{{dictationWordList.length > 0}}">
+    <view class="mode-card" wx:for="{{dictationWordList}}" wx:key="date"
+          data-date="{{item.date}}" data-words="{{item.words}}" data-index="{{index}}"
+          bindtap="goToDictation">
+      <view class="mode-card-left">
+        <text class="mode-date">{{item.date}}</text>
+        <text class="mode-count">共{{item.words.length}}个单词</text>
+      </view>
+      <view class="mode-card-right">
+        <view class="mode-go-btn" style="background:{{themeColors[themeIdx].accent}};">
+          <text class="mode-go-text">去听写</text>
+        </view>
+      </view>
+    </view>
+    <view class="scroll-bottom-space"></view>
+  </scroll-view>
+
+  <view class="mode-empty" wx:else>
+    <text>暂无听写计划</text>
+    <text class="mode-empty-sub">快去添加单词开始听写吧</text>
+  </view>
+</view>

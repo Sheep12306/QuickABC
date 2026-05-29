@@ -1,0 +1,19 @@
+@import '../review/review.wxss';
+
+.checkin-area {
+  position: relative;
+}
+
+.checkin-guide {
+  position: absolute;
+  bottom: -30rpx;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 22rpx;
+  color: #43A047;
+  white-space: nowrap;
+}
+
+.checkin-area:active {
+  opacity: 0.8;
+}

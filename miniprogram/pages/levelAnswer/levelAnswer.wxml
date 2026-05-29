@@ -1,0 +1,67 @@
+<view class="answer-container">
+  <!-- 顶部关卡信息 -->
+  <view class="level-header">
+    <button class="back-btn" bindtap="goBack">← 返回</button>
+    <view class="level-info">
+      <text class="level-name">第{{levelId}}关：{{levelTitle}}</text>
+      <text class="progress">第{{currentIndex + 1}}题 / 共{{totalCount}}题</text>
+    </view>
+  </view>
+
+  <!-- 题目卡片（从下往上滑答题） -->
+  <view class="question-container">
+    <view 
+      class="question-card" 
+      style="transform: translateY({{(currentIndex - prevIndex) * 100}}); transition: transform 0.3s ease-out;"
+    >
+      <!-- 选择题 -->
+      <view wx:if="{{currentQuestion.type === 'choice'}}">
+        <view class="question-text">{{currentQuestion.question}}</view>
+        <view class="options">
+          <view 
+            class="option {{selectedOption === opt ? 'selected' : ''}}" 
+            wx:for="{{currentQuestion.options}}" 
+            wx:key="*this"
+            bindtap="selectOption"
+            data-option="{{opt}}"
+          >
+            {{opt}}
+          </view>
+        </view>
+      </view>
+
+      <!-- 填空题 -->
+      <view wx:if="{{currentQuestion.type === 'fill'}}">
+        <view class="question-text">{{currentQuestion.question}}</view>
+        <view class="fill-input">
+          <input 
+            placeholder="请输入答案..." 
+            value="{{fillAnswer}}"
+            bindinput="inputFillAnswer"
+          />
+        </view>
+      </view>
+
+      <!-- 下一题/提交按钮 -->
+      <view class="btn-group">
+        <button 
+          wx:if="{{currentIndex > 0}}"
+          bindtap="prevQuestion"
+          class="prev-btn"
+        >上一题</button>
+        <button 
+          wx:if="{{currentIndex < totalCount - 1}}"
+          bindtap="nextQuestion"
+          class="next-btn"
+          disabled="{{!canProceed}}"
+        >下一题</button>
+        <button 
+          wx:if="{{currentIndex === totalCount - 1}}"
+          bindtap="submitLevel"
+          class="submit-btn"
+          disabled="{{!canProceed}}"
+        >提交关卡</button>
+      </view>
+    </view>
+  </view>
+</view>

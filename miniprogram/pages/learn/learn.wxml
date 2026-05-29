@@ -1,0 +1,57 @@
+<view class="learn-container">
+  <!-- 顶部导航栏 -->
+  <view class="learn-header">
+    <view class="nav-left">
+      <text class="book-name">{{currentBook.name}}</text>
+      <text class="group-text">第{{currentGroup}}组</text>
+    </view>
+    <view class="nav-right">
+      <view class="nav-review" bindtap="handleReviewButton"
+            style="background:{{themeColors[themeIdx].light}};border-color:{{themeColors[themeIdx].accent}};">
+        <text class="review-text" style="color:{{themeColors[themeIdx].accent}};">复习检测</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 单词列表区 -->
+  <view class="words-section">
+    <view class="words-list">
+      <view class="word-card" wx:for="{{currentWords}}" wx:key="id"
+            data-index="{{index}}"
+            bindtap="handleWordTap"
+            style="border-color:{{themeColors[themeIdx].light}};">
+        <!-- 单词主体 -->
+        <view class="word-main">
+          <text class="word-en">{{item.en}}</text>
+          <text class="word-phonetic" wx:if="{{item.clickCount >= 1}}" style="color:{{themeColors[themeIdx].accent}};">[{{item.phonetic}}]</text>
+        </view>
+
+        <view class="word-info {{item.clickCount === 2 ? 'show' : 'hide'}}">
+          <view class="word-part">
+            <text class="part-meaning">{{item.meaning}}</text>
+          </view>
+        </view>
+
+        <!-- 点击状态指示器 -->
+        <view class="click-indicator">
+          <view class="indicator-dot {{item.clickCount >= 1 ? 'active' : ''}}" style="{{item.clickCount >= 1 ? 'background:' + themeColors[themeIdx].accent + ';' : ''}}"></view>
+          <view class="indicator-dot {{item.clickCount >= 2 ? 'active' : ''}}" style="{{item.clickCount >= 2 ? 'background:' + themeColors[themeIdx].accent + ';' : ''}}"></view>
+          <view class="indicator-dot {{item.clickCount >= 3 ? 'active' : ''}}" style="{{item.clickCount >= 3 ? 'background:' + themeColors[themeIdx].accent + ';' : ''}}"></view>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 底部控制栏 -->
+  <view class="bottom-controls">
+    <view class="btn-control {{currentGroup <= 1 ? 'disabled' : ''}}"
+          bindtap="preGroup">
+      <text>上一组</text>
+    </view>
+
+    <view class="btn-control {{!canNext ? 'disabled' : ''}}"
+          bindtap="nextGroup">
+      <text>下一组</text>
+    </view>
+  </view>
+</view>

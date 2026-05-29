@@ -1,0 +1,40 @@
+<view class="record-container" style="background:{{cardThemes[themeIdx].bg}};">
+  <!-- 日历头部 -->
+  <view class="calendar-header">
+    <text class="month-btn" bindtap="prevMonth">＜</text>
+    <text class="current-month">{{currentYear}}年{{currentMonth}}月</text>
+    <text class="month-btn" bindtap="nextMonth">＞</text>
+  </view>
+
+  <!-- 星期头部 -->
+  <view class="week-header">
+    <text class="week-item">日</text>
+    <text class="week-item">一</text>
+    <text class="week-item">二</text>
+    <text class="week-item">三</text>
+    <text class="week-item">四</text>
+    <text class="week-item">五</text>
+    <text class="week-item">六</text>
+  </view>
+
+  <!-- 日历主体 -->
+  <view class="calendar-body">
+    <view class="date-item" wx:for="{{calendarDays}}" wx:key="index"
+          bindtap="selectDate" data-date="{{item.date}}" data-wordnum="{{item.wordNum}}">
+      <text class="date-text {{!item.isCurrentMonth ? 'not-current' : ''}}{{item.isCheckIn ? 'check-in' : ''}}{{item.date === selectedDate ? 'selected' : ''}}"
+            style="{{item.date === selectedDate ? 'background:' + themeColors[themeIdx].accent + ';' : ''}}{{item.isCheckIn && item.date !== selectedDate ? 'color:' + themeColors[themeIdx].accent + ';' : ''}}">
+        {{item.day}}
+      </text>
+      <view class="check-mark" wx:if="{{item.isCheckIn && item.isCurrentMonth}}"
+            style="background:{{themeColors[themeIdx].accent}};"></view>
+    </view>
+  </view>
+
+  <!-- 选中日期详情 -->
+  <view class="detail-card" wx:if="{{selectedDate}}">
+    <text class="detail-title">{{selectedDate}} 打卡详情</text>
+    <text class="detail-content" style="color:{{themeColors[themeIdx].accent}};">
+      {{selectedWordNum > 0 ? '当日背单词数：' + selectedWordNum + ' 个' : '当日未打卡'}}
+    </text>
+  </view>
+</view>

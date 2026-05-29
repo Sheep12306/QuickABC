@@ -1,0 +1,266 @@
+/* 复习页面 - 无卡片、融入背景 */
+
+.review-container {
+    min-height: 100vh;
+    background: #F8F8FA;
+    display: flex;
+    flex-direction: column;
+}
+
+/* ===== 顶部行 ===== */
+.review-top {
+    display: flex;
+    align-items: center;
+    padding: 24rpx 32rpx;
+    gap: 12rpx;
+}
+
+.review-title {
+    font-size: 28rpx;
+    font-weight: 600;
+    color: #2C3E2D;
+}
+
+.review-subtitle {
+    font-size: 22rpx;
+    color: #8A9B8B;
+}
+
+.top-spacer {
+    flex: 1;
+}
+
+/* 随机按钮 */
+.nav-shuffle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 56rpx;
+    height: 56rpx;
+    border-radius: 28rpx;
+    background: #F2F2F7;
+}
+
+.nav-shuffle:active {
+    background: #E5E5EA;
+}
+
+.shuffle-text {
+    font-size: 34rpx;
+    font-weight: 600;
+}
+
+/* ===== 单词展示区 ===== */
+.word-area {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 40rpx;
+}
+
+.word-main {
+    text-align: center;
+    width: 100%;
+}
+
+.word-display {
+    margin-bottom: 48rpx;
+}
+
+.word-en {
+    font-size: 88rpx;
+    font-weight: 700;
+    color: #1A1A1A;
+    display: block;
+    margin-bottom: 24rpx;
+    line-height: 1.2;
+    letter-spacing: 1rpx;
+}
+
+.word-meta {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 20rpx;
+}
+
+.word-phonetic {
+    font-size: 34rpx;
+    font-weight: 500;
+}
+
+.audio-icon {
+    width: 52rpx;
+    height: 52rpx;
+    border-radius: 26rpx;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.audio-icon:active {
+    opacity: 0.7;
+}
+
+.audio-shape {
+    width: 0;
+    height: 0;
+    border-top: 9rpx solid transparent;
+    border-bottom: 9rpx solid transparent;
+    border-left: 14rpx solid #43A047;
+    margin-left: 4rpx;
+}
+
+/* 答案区 */
+.answer-area {
+    margin: 32rpx 0;
+}
+
+.answer-area.show {
+    opacity: 1;
+    max-height: 160rpx;
+}
+
+.answer-area.hide {
+    opacity: 0;
+    max-height: 0;
+}
+
+.meaning-text {
+    font-size: 44rpx;
+    font-weight: 600;
+    color: #1A1A1A;
+}
+
+.correct-btn {
+    display: inline-block;
+    margin-top: 28rpx;
+    padding: 14rpx 36rpx;
+    background: #F2F2F7;
+    border-radius: 20rpx;
+    font-size: 26rpx;
+    color: #8A9B8B;
+}
+
+.correct-btn:active {
+    background: #E5E5EA;
+}
+
+/* 操作按钮 */
+.action-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 60rpx;
+    margin-top: 56rpx;
+}
+
+.btn-action {
+    width: 240rpx;
+    height: 100rpx;
+    border-radius: 20rpx;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 32rpx;
+    font-weight: 600;
+}
+
+.btn-action:active {
+    transform: scale(0.96);
+}
+
+.btn-dont-know {
+    background: #F2F2F7;
+    color: #8A9B8B;
+}
+
+.btn-know {
+    color: #FFFFFF;
+}
+
+/* 下一个按钮 */
+.next-btn-area {
+    margin-top: 48rpx;
+    padding: 0 40rpx;
+}
+
+.btn-next {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    padding: 28rpx 0;
+    border-radius: 24rpx;
+    font-size: 34rpx;
+    font-weight: 600;
+    color: #FFFFFF;
+}
+
+.btn-next:active {
+    opacity: 0.85;
+}
+
+/* 完成按钮 */
+.finish-btn-area {
+    margin-top: 48rpx;
+    padding: 0 40rpx;
+}
+
+.btn-finish {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    padding: 28rpx 0;
+    border-radius: 24rpx;
+    font-size: 34rpx;
+    font-weight: 600;
+    color: #FFFFFF;
+}
+
+.btn-finish:active {
+    opacity: 0.85;
+}
+
+/* 统计区 */
+.stats-section {
+    padding: 28rpx 36rpx 40rpx;
+    flex-shrink: 0;
+}
+
+.stats-row {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+}
+
+.stat-item {
+    text-align: center;
+    flex: 1;
+}
+
+.stat-value {
+    font-size: 36rpx;
+    font-weight: 700;
+    color: #2C3E2D;
+    display: block;
+    margin-bottom: 6rpx;
+}
+
+.stat-label {
+    font-size: 22rpx;
+    color: #8A9B8B;
+}
+
+.stat-divider {
+    width: 1rpx;
+    height: 36rpx;
+    background: #E5E5EA;
+}
+
+/* 空状态 */
+.empty-tip {
+    font-size: 32rpx;
+    color: #8A9B8B;
+}

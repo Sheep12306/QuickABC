@@ -1,0 +1,206 @@
+Page({
+    data: {
+      userInfo: {
+        avatar: '',
+        nickname: '',
+        grade: '',
+        phone: '',
+        school: ''
+      },
+      gradeList: ['一年级', '二年级', '三年级', '四年级', '五年级', '六年级', '初一', '初二', '初三', '高一', '高二', '高三'],
+      gradeIndex: -1,
+      isSaving: false,
+      themeColors: [
+        { accent: '#43A047', light: '#E8F5E9' },
+        { accent: '#00897B', light: '#E0F2F1' },
+        { accent: '#F57C00', light: '#FFF3E0' },
+        { accent: '#7B1FA2', light: '#F3E5F5' },
+        { accent: '#1976D2', light: '#E3F2FD' }
+      ],
+      themeIdx: 0,
+      cardThemes: [
+        { bg: 'linear-gradient(175deg, #C8E6C9 0%, #E8F5E9 30%, #F1F8F4 100%)' },
+        { bg: 'linear-gradient(175deg, #B2DFDB 0%, #E0F2F1 30%, #F1F8F7 100%)' },
+        { bg: 'linear-gradient(175deg, #FFE0B2 0%, #FFF3E0 30%, #FFF8F5 100%)' },
+        { bg: 'linear-gradient(175deg, #E1BEE7 0%, #F3E5F5 30%, #F8F4FA 100%)' },
+        { bg: 'linear-gradient(175deg, #BBDEFB 0%, #E3F2FD 30%, #F5F8FC 100%)' }
+      ]
+    },
+
+    onLoad() {
+      this.setData({ themeIdx: getApp().globalData.cardThemeIndex || 0 });
+      this.initCloud();
+      this.loadUserInfo();
+    },
+
+    onShow() {
+      this.setData({ themeIdx: getApp().globalData.cardThemeIndex || 0 });
+    },
+
+    initCloud() {
+      if (!wx.cloud) {
+        wx.showToast({ title: '微信版本过低，不支持云开发', icon: 'none' });
+        return;
+      }
+      wx.cloud.init({
+        env: 'cloud1-1gfs1z6a4027d442',
+        traceUser: true
+      });
+    },
+
+    async loadUserInfo() {
+      try {
+        const openid = wx.getStorageSync('openid');
+        if (openid) {
+          const res = await wx.cloud.callFunction({
+            name: 'getUserProfile',
+            data: { openid }
+          });
+          if (res.result.code === 200 && res.result.data) {
+            const cloudUserInfo = res.result.data;
+            const gradeIndex = this.data.gradeList.indexOf(cloudUserInfo.grade);
+            this.setData({
+              userInfo: {
+                avatar: cloudUserInfo.avatar || '',
+                nickname: cloudUserInfo.nickname || '',
+                grade: cloudUserInfo.grade || '',
+                phone: cloudUserInfo.phone || '',
+                school: cloudUserInfo.school || ''
+              },
+              gradeIndex: gradeIndex > -1 ? gradeIndex : -1
+            });
+            this.saveToStorageNormalized(cloudUserInfo);
+          } else {
+            this.loadLocalUserInfo();
+          }
+        } else {
+          this.loadLocalUserInfo();
+        }
+      } catch (err) {
+        console.error('加载云端信息失败：', err);
+        this.loadLocalUserInfo();
+      }
+    },
+
+    loadLocalUserInfo() {
+      const stored = wx.getStorageSync('userInfo') || {};
+      const userInfo = {
+        avatar: stored.avatar || stored.avatarUrl || '',
+        nickname: stored.nickname || stored.nickName || '',
+        grade: stored.grade || '',
+        phone: stored.phone || '',
+        school: stored.school || ''
+      };
+      const gradeIndex = this.data.gradeList.indexOf(userInfo.grade);
+      this.setData({ userInfo, gradeIndex: gradeIndex > -1 ? gradeIndex : -1 });
+    },
+
+    saveToStorageNormalized(userInfo) {
+      const normalized = {
+        avatar: userInfo.avatar || '',
+        avatarUrl: userInfo.avatar || '',
+        nickname: userInfo.nickname || '',
+        nickName: userInfo.nickname || '',
+        grade: userInfo.grade || '',
+        phone: userInfo.phone || '',
+        school: userInfo.school || ''
+      };
+      wx.setStorageSync('userInfo', normalized);
+    },
+
+    chooseAvatar() {
+      wx.chooseMedia({
+        count: 1,
+        mediaType: ['image'],
+        sourceType: ['album', 'camera'],
+        success: (res) => {
+          const tempFilePath = res.tempFiles[0].tempFilePath;
+          this.setData({ 'userInfo.avatar': tempFilePath });
+        },
+        fail: (err) => {
+          console.error('选择头像失败：', err);
+        }
+      });
+    },
+
+    onNicknameInput(e) {
+      this.setData({ 'userInfo.nickname': e.detail.value || '' });
+    },
+
+    onGradeChange(e) {
+      const index = e.detail.value;
+      this.setData({
+        gradeIndex: index,
+        'userInfo.grade': this.data.gradeList[index] || ''
+      });
+    },
+
+    onPhoneInput(e) {
+      this.setData({ 'userInfo.phone': e.detail.value || '' });
+    },
+
+    onSchoolInput(e) {
+      this.setData({ 'userInfo.school': e.detail.value || '' });
+    },
+
+    async saveProfile() {
+      const { userInfo, isSaving } = this.data;
+      if (isSaving) return;
+
+      if (!userInfo.nickname) {
+        wx.showToast({ title: '请输入昵称', icon: 'none' });
+        return;
+      }
+      if (!userInfo.grade) {
+        wx.showToast({ title: '请选择年级', icon: 'none' });
+        return;
+      }
+      if (!userInfo.phone) {
+        wx.showToast({ title: '请输入手机号', icon: 'none' });
+        return;
+      }
+      if (!/^1\d{10}$/.test(userInfo.phone)) {
+        wx.showToast({ title: '手机号格式不正确', icon: 'none' });
+        return;
+      }
+      if (!userInfo.school) {
+        wx.showToast({ title: '请输入学校', icon: 'none' });
+        return;
+      }
+
+      this.setData({ isSaving: true });
+      wx.showLoading({ title: '保存中...' });
+
+      try {
+        const openid = wx.getStorageSync('openid');
+        if (!openid) {
+          wx.hideLoading();
+          this.setData({ isSaving: false });
+          wx.showToast({ title: '请先登录', icon: 'none' });
+          return;
+        }
+
+        const res = await wx.cloud.callFunction({
+          name: 'saveUserProfile',
+          data: { openid, userInfo }
+        });
+
+        if (res.result.code === 200) {
+          this.saveToStorageNormalized(userInfo);
+          getApp().globalData.profileUpdated = Date.now();
+          wx.hideLoading();
+          wx.showToast({ title: '保存成功', icon: 'success' });
+          setTimeout(() => wx.navigateBack(), 1500);
+        } else {
+          wx.hideLoading();
+          this.setData({ isSaving: false });
+          wx.showToast({ title: res.result.msg || '保存失败', icon: 'none' });
+        }
+      } catch (err) {
+        console.error('保存个人信息失败：', err);
+        wx.hideLoading();
+        this.setData({ isSaving: false });
+        wx.showToast({ title: '保存失败，请检查网络', icon: 'none' });
+      }
+    }
+  });

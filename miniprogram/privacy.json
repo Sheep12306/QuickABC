@@ -1,0 +1,15 @@
+{
+    "privacy": {
+      "apiList": [
+        {
+          "api": "wx.getUserProfile",
+          "desc": "用于完善用户个人资料，展示头像昵称"
+        },
+        {
+          "api": "wx.getPhoneNumber",
+          "desc": "用于账号绑定和安全验证"
+        }
+      ]
+    }
+  }
+  

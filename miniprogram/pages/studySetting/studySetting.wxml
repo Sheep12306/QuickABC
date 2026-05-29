@@ -1,0 +1,9 @@
+<view class="setting-container" style="background:{{cardThemes[themeIdx].bg}};">
+  <view class="setting-card">
+    <view class="setting-icon-wrap" style="background:{{themeColors[themeIdx].light}};">
+      <text class="setting-icon" style="color:{{themeColors[themeIdx].accent}};">S</text>
+    </view>
+    <text class="setting-tip">学习设置功能开发中...</text>
+    <text class="setting-sub">敬请期待更多个性化学习选项</text>
+  </view>
+</view>

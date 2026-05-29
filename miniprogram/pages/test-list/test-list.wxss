@@ -1,0 +1,22 @@
+@import '../review-mode/review-mode.wxss';
+
+.mode-go-btn {
+  padding: 14rpx 28rpx;
+  border-radius: 20rpx;
+}
+
+.mode-go-btn:active {
+  opacity: 0.85;
+}
+
+.mode-go-text {
+  font-size: 24rpx;
+  font-weight: 600;
+  color: #FFFFFF;
+}
+
+.mode-empty-sub {
+  font-size: 24rpx;
+  color: #A5B8A5;
+  margin-top: 12rpx;
+}

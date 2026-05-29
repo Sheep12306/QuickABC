@@ -1,0 +1,69 @@
+<view class="review-container">
+  <view class="review-top">
+    <text class="review-title">{{reviewDate}}抗遗忘打卡</text>
+    <text class="review-subtitle">{{currentIndex + 1}}/{{totalWords || 0}}</text>
+    <view class="top-spacer"></view>
+    <view class="nav-shuffle" bindtap="shuffleWords">
+      <text class="shuffle-text" style="color:{{themeColors[themeIdx].accent}};">↻</text>
+    </view>
+  </view>
+
+  <view class="word-area">
+    <view class="word-main" wx:if="{{currentWord}}">
+      <view class="word-display">
+        <text class="word-en">{{currentWord.en}}</text>
+        <view class="word-meta">
+          <text class="word-phonetic" style="color:{{themeColors[themeIdx].accent}};">[{{currentWord.phonetic}}]</text>
+          <view class="audio-icon" bindtap="playCurrentAudio" style="background:{{themeColors[themeIdx].light}};">
+            <view class="audio-shape" style="border-left-color:{{themeColors[themeIdx].accent}};"></view>
+          </view>
+        </view>
+      </view>
+
+      <view class="answer-area {{showAnswer ? 'show' : 'hide'}}">
+        <view class="meaning-text">{{currentWord.meaning}}</view>
+        <view class="correct-btn" wx:if="{{showAnswer && currentMarkedAsKnow}}" bindtap="correctToDontKnow">
+          <text>更正为不认识</text>
+        </view>
+      </view>
+
+      <view class="action-buttons" wx:if="{{!hasMadeChoice}}">
+        <view class="btn-action btn-dont-know" bindtap="markDontKnow">
+          <text>不认识</text>
+        </view>
+        <view class="btn-action btn-know" bindtap="markKnow" style="background:{{themeColors[themeIdx].accent}};">
+          <text>认识</text>
+        </view>
+      </view>
+
+      <view class="next-btn-area" wx:if="{{hasMadeChoice && (currentIndex < (totalWords || 0) - 1)}}">
+        <view class="btn-next" bindtap="nextWord" style="background:{{themeColors[themeIdx].accent}};">
+          <text>下一个</text>
+        </view>
+      </view>
+    </view>
+    <view class="empty-tip" wx:else>
+      <text>暂无复习单词</text>
+    </view>
+  </view>
+
+  <view class="stats-section">
+    <view class="stats-row">
+      <view class="stat-item">
+        <text class="stat-value">{{knowCount || 0}}</text>
+        <text class="stat-label">已掌握</text>
+      </view>
+      <view class="stat-divider"></view>
+      <view class="stat-item">
+        <text class="stat-value">{{dontKnowCount || 0}}</text>
+        <text class="stat-label">需复习</text>
+      </view>
+      <view class="stat-divider"></view>
+      <view class="stat-item checkin-area" bindtap="handleCheckIn">
+        <text class="stat-value">{{checkCount || 0}}</text>
+        <text class="stat-label">打卡次数</text>
+        <view class="checkin-guide" wx:if="{{showCheckInTip}}">太棒了，快去打卡吧</view>
+      </view>
+    </view>
+  </view>
+</view>

@@ -1,0 +1,124 @@
+/* 快背单词 - 玻璃拟态设计系统 */
+
+/* ===== 色彩标记 ===== */
+page {
+  /* 主绿色系 */
+  --g-green-900: #1B5E20;
+  --g-green-700: #2E7D32;
+  --g-green-500: #43A047;
+  --g-green-400: #66BB6A;
+  --g-green-200: #A5D6A7;
+  --g-green-100: #C8E6C9;
+  --g-green-50: #E8F5E9;
+
+  /* 玻璃层 */
+  --g-glass-white: rgba(255, 255, 255, 0.82);
+  --g-glass-light: rgba(255, 255, 255, 0.65);
+  --g-glass-green: rgba(232, 245, 233, 0.70);
+  --g-glass-border: rgba(255, 255, 255, 0.45);
+  --g-glass-border-green: rgba(76, 175, 80, 0.12);
+
+  /* 文字 */
+  --g-text-white: #FFFFFF;
+  --g-text-light: rgba(255, 255, 255, 0.85);
+  --g-text-muted: rgba(255, 255, 255, 0.60);
+  --g-text-dark: #2C3E2D;
+  --g-text-body: #4A5B4B;
+  --g-text-subtle: #8A9B8B;
+
+  /* 阴影（柔和扩散） */
+  --g-shadow-card: 0 4rpx 24rpx rgba(46, 125, 50, 0.10);
+  --g-shadow-soft: 0 2rpx 12rpx rgba(46, 125, 50, 0.07);
+  --g-shadow-glow: 0 0 40rpx rgba(67, 160, 71, 0.12);
+
+  /* 圆角 */
+  --g-radius-lg: 32rpx;
+  --g-radius-md: 24rpx;
+  --g-radius-sm: 16rpx;
+  --g-radius-xs: 10rpx;
+
+  /* 间距 */
+  --g-space-xs: 8rpx;
+  --g-space-sm: 14rpx;
+  --g-space-md: 22rpx;
+  --g-space-lg: 30rpx;
+  --g-space-xl: 40rpx;
+
+  background: #F0F7F0;
+  font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Helvetica Neue', sans-serif;
+  font-size: 28rpx;
+  color: var(--g-text-dark);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ===== 玻璃卡片基底 ===== */
+.glass-card {
+  background: var(--g-glass-white);
+  border-radius: var(--g-radius-lg);
+  border: 1rpx solid var(--g-glass-border);
+  box-shadow: var(--g-shadow-card);
+}
+
+.glass-card-light {
+  background: var(--g-glass-light);
+  border-radius: var(--g-radius-lg);
+  border: 1rpx solid var(--g-glass-border);
+  box-shadow: var(--g-shadow-soft);
+}
+
+.glass-card-green {
+  background: var(--g-glass-green);
+  border-radius: var(--g-radius-lg);
+  border: 1rpx solid var(--g-glass-border-green);
+  box-shadow: var(--g-shadow-soft);
+}
+
+/* ===== 通用按钮 ===== */
+button {
+  border-radius: var(--g-radius-sm);
+  font-size: 28rpx;
+  font-weight: 500;
+}
+button:active {
+  opacity: 0.85;
+}
+
+/* ===== 顶栏覆盖 ===== */
+.van-nav-bar {
+  background: rgba(46, 125, 50, 0.85) !important;
+  backdrop-filter: blur(10px);
+}
+.van-nav-bar__title {
+  color: white !important;
+  font-weight: 600;
+}
+
+/* ===== 空状态 & 加载 ===== */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 120rpx var(--g-space-lg);
+}
+.empty-state-text {
+  font-size: 28rpx;
+  color: var(--g-text-subtle);
+}
+
+.loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 80rpx 0;
+}
+.loading-text {
+  color: var(--g-green-500);
+  font-size: 28rpx;
+}
+
+/* ===== 安全区 ===== */
+.safe-area {
+  padding-bottom: env(safe-area-inset-bottom);
+}

@@ -1,0 +1,8 @@
+<view class="test-container" style="background:{{cardThemes[themeIdx].bg}};">
+  <view class="test-card">
+    <text class="test-tip">正在生成测试题目...</text>
+    <view class="complete-btn" bindtap="completeTest" style="background:{{themeColors[themeIdx].accent}};">
+      <text class="complete-text">完成测试（模拟）</text>
+    </view>
+  </view>
+</view>

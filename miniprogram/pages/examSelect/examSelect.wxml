@@ -1,0 +1,38 @@
+<view class="exam-select-container">
+  <!-- 优化顶部：移除返回键，标题居左 -->
+  <view class="header">
+    <view class="title">选择考试范围</view>
+  </view>
+
+  <!-- checkbox-group统一管理勾选状态 -->
+  <checkbox-group class="scope-list" bindchange="onGroupCheck">
+    <!-- 原有分类 -->
+    <view class="scope-item" wx:for="{{grammarScopes}}" wx:key="id">
+      <label class="checkbox-label">
+        <checkbox value="{{item.id + ''}}" checked="{{item.checked}}" />
+        <view class="scope-name">{{item.name}}</view>
+      </label>
+    </view>
+    <!-- 新增细分分类 -->
+    <view class="scope-item" wx:for="{{newGrammarScopes}}" wx:key="id">
+      <label class="checkbox-label">
+        <checkbox value="{{item.id + ''}}" checked="{{item.checked}}" />
+        <view class="scope-name">{{item.name}}</view>
+      </label>
+    </view>
+  </checkbox-group>
+
+  <!-- 动态提示文字 -->
+  <view class="count-tip">
+    已选{{selectedCount}}类，100题将平均分配（每类{{perTypeCount}}题）
+  </view>
+
+  <!-- 开始考试按钮 -->
+  <button 
+    class="start-btn" 
+    bindtap="startExam"
+    disabled="{{selectedCount === 0}}"
+  >
+    开始100题模拟考试
+  </button>
+</view>

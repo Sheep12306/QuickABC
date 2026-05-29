@@ -1,0 +1,97 @@
+一、读取项目文件26.5.26
+
+ 项目概况："快背单词" 微信小程序
+
+  前端（22个注册页面，3个Tab）
+
+  - 单词 Tab (pages/index/index) — 主学习面板，单词书选择，学习进度
+  - 发现 Tab (pages/discover/discover) — 大部分还是骨架/占位
+  - 我的 Tab (pages/my/my) — 用户登录、打卡、学习统计
+  - 核心学习流程：learn（分组学单词）→ review（认识/不认识复习）→ new-word-review（错词复习）
+  - 辅助功能：听写(dictation)、词汇测试(vocab-Test)、语法考试(examAnswer/levelAnswer)、AI智能学(ai-smart-learn)
+  - 数据大量依赖本地 Storage，云函数作为备份/恢复层
+  - 音频使用有道词典 TTS，AI 功能直接调用豆包 Vision API
+
+  后端（23个云函数目录，cloudfunctions/）
+
+  - 12个数据库集合：users, wordBooks, words, wordStudyRecords, userLearnedWords, userBookProgress, userLearnRecord,
+  user_study_data, wrong_words, vocabTestRecords, questionBank, sales
+  - 认证：基于微信 OpenID，通过 login/phoneLogin 云函数管理
+  - 所有云函数使用 wx-server-sdk，结构为 index.js + package.json
+
+  发现的问题
+
+  1. 前端调用了 getUserLearnRecord 和 getWordsByIds，但这两个云函数不存在
+  2. ocrImage 云函数内容是前端代码（复制错误）
+  3. kangyiwang 是空目录
+  4. wordBookList.js 调用 getWordBooks，但实际函数叫 getAllWordBooks
+  5. 多个组件（progress-bar, word-card, course-item）是空骨架
+  6. ai-smart-learn.js 中豆包 API Key 硬编码在前端代码中
+  7. 云函数响应格式不统一（有的用 { code, data }，有的用 { success }）
+
+  ---
+  这是一个功能相对完整的单词学习小程序，核心学习闭环已经跑通，但有些边缘功能还是半成品。迁移到阿里云需要把 20
+  个云函数的逻辑改写为 REST API，并替换前端的 wx.cloud.callFunction() 调用
+
+二、改写前端26.5.27
+
+三、后端改写到阿里云服务器
+
+1、项目基本信息
+项目名称：vocab-server（单词本后端服务）
+技术栈：Node.js + Express + Sequelize ORM + MySQL
+部署环境：阿里云 ECS 服务器（Linux 系统）
+部署路径：/opt/vocab-server/
+进程管理：PM2
+服务端口：3001
+数据库：MySQL 8.0，数据库名 vocab_db（曾混淆 quickabc_db）
+
+2、项目核心结构
+/opt/vocab-server/
+├── src/
+│ ├── server.js # 主入口文件（启动服务 + 数据库同步）
+│ ├── app.js # Express 应用配置（中间件 + 路由）
+│ ├── routes/ # 路由目录
+│ └── middleware/ # 中间件目录
+├── models/
+│ └── word.js # 单词表 Sequelize 模型
+├── db.js # Sequelize 数据库连接配置（根目录）
+├── .env # 环境变量配置
+└── ecosystem.config.js # PM2 进程配置
+
+3、核心配置信息
+
+4、已解决的核心问题（按时间顺序）
+外键约束矛盾：初始 Word 模型中 bookId 设为 allowNull: false，与 ON DELETE SET NULL 外键行为冲突，导致数据库同步失败。
+修复：将 bookId 改为 allowNull: true，补充完整外键定义。
+命令执行环境错误：误将 Linux 终端命令（如 pm2 start）写入 DataGrip SQL 控制台，导致 SQL 语法报错。
+修复：所有服务器命令在 FinalShell 终端执行，SQL 语句在 DataGrip 执行。
+核心文件缺失：项目缺少 db.js（Sequelize 初始化文件），导致数据库连接和同步逻辑完全缺失。
+修复：创建根目录 db.js，实现数据库连接和模型导入。
+模型路径错误：db.js 中错误导入 ./src/models/word，实际模型文件在根目录 ./models/word。
+修复：修正导入路径为 require ('./models/word')(sequelize)。
+非法字符语法错误：db.js 中混入 EOF 非法字符，导致 ReferenceError: EOF is not defined，服务启动崩溃。
+修复：删除损坏文件，用 echo 命令重建纯净无语法错误的 db.js。
+服务启动后拒绝连接：上述错误导致服务进程崩溃，PM2 显示 online 但实际未监听端口。
+修复：逐一解决上述问题后，服务正常启动，健康检查接口返回正常。
+
+5、当前最终状态
+✅ 服务已正常稳定运行，PM2 状态为 online
+✅ 健康检查接口 http://127.0.0.1:3001/health 返回 {"status":"ok","timestamp":"xxx"}
+✅ 数据库 vocab_db 中已手动创建 words 表，结构正确
+✅ 所有核心配置已适配生产环境，可直接通过公网 IP + 端口 测试接口
+
+26.5.29修复了3001拒绝访问的问题
+项目后端报错原因总结
+
+一开始 3001 端口一直拒绝访问，根本原因不是端口本身坏了，而是后端服务没有真正启动完成。PM2 虽然显示进程在线，但 Express 服务在数据库初始化阶段就已经报错，中断了启动流程，所以 3001 实际上没有进入监听状态。
+
+整个问题的第一类原因是数据库文件路径错误。项目里曾经出现过错误的数据库入口文件，而且文件末尾还带有多余的 EOF 文本，导致 Node 读取模块失败。后面又出现过路径引用写错的问题，比如模型文件引用数据库目录时多写了一层路径，结果系统找不到正确的数据库模块。
+
+第二类原因是数据库表结构和外键设计冲突。words 表里的 book_id 字段设置成了不允许为空，但外键规则又要求删除词书时把 book_id 置空，这两者天然冲突，所以 Sequelize 在同步表结构时直接报错，导致 words 表无法正常创建。
+
+第三类原因是数据库表根本没有成功生成。由于前面的同步报错，words 表和 users 表都曾经处于不存在的状态，所以 DataGrip 里会显示找不到对应表。后来即使手动建表，如果结构和模型不一致，还是会继续报错。
+
+第四类原因是 Sequelize 自动同步方式使用不当。项目里使用了自动改表模式，反复尝试修改 users 表里的唯一索引，导致 MySQL 索引数量不断累积，最后触发了 MySQL 的 key 数量上限限制。这个问题说明自动同步把数据库结构改乱了，不适合继续反复使用。
+
+因此，前面所有报错其实可以归纳为三条主线：数据库文件路径混乱，表结构和外键定义冲突，自动同步反复修改数据库导致索引和表结构异常。正因为这些错误一直发生，后端服务始终没能完整启动，所以 3001 端口才会一直拒绝连接。

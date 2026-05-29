@@ -1,0 +1,110 @@
+<view class="my-container" style="background:{{cardThemes[themeIdx].bg}};">
+  <!-- 1. 用户信息 -->
+  <view class="user-info-section">
+    <view class="avatar-info">
+      <image class="avatar" src="{{isLogin ? userInfo.avatarUrl : '/images/avatar.png'}}" mode="aspectFill"></image>
+      <view class="user-base">
+        <view class="user-name">{{isLogin ? userInfo.nickName : '微信用户'}}</view>
+        <view class="user-level" wx:if="{{isLogin}}" style="color:{{themeColors[themeIdx].accent}};">Lv.{{userLevel}}</view>
+        <text wx:if="{{isLogin}}" class="phone-bind-text" bindtap="showPhoneModal">
+          {{userPhone || '绑定手机号'}}
+        </text>
+        <view wx:if="{{!isLogin}}" class="onekey-login-btn" bindtap="wechatAuthLogin"
+              style="background:{{themeColors[themeIdx].accent}};">
+          <text class="login-btn-text">微信登录</text>
+        </view>
+      </view>
+    </view>
+    <view class="personal-page" bindtap="goToProfile" wx:if="{{isLogin}}">个人主页</view>
+  </view>
+
+  <!-- 2. 核心数据 三栏 -->
+  <view class="stats-row">
+    <view class="stat-card stat-main">
+      <text class="stat-num" style="color:{{themeColors[themeIdx].accent}};">{{todayWords}}</text>
+      <text class="stat-label">今日已背</text>
+    </view>
+    <view class="stat-card stat-main" bindtap="goToVocabDetail">
+      <text class="stat-num" style="color:{{themeColors[themeIdx].accent}};">{{totalWords}}</text>
+      <text class="stat-label">当前词汇量</text>
+    </view>
+  </view>
+
+  <!-- 3. 学习工具 -->
+  <view class="tools-section">
+    <text class="section-title">学习工具</text>
+    <view class="tools-grid">
+      <view class="tool-item" bindtap="goToVocabTest">
+        <view class="tool-icon-circle" style="background:{{themeColors[themeIdx].light}};">
+          <text class="tool-icon-inner" style="color:{{themeColors[themeIdx].accent}};">T</text>
+        </view>
+        <text class="tool-label">词汇测试</text>
+      </view>
+      <view class="tool-item" bindtap="checkInStats">
+        <view class="tool-icon-circle" style="background:{{themeColors[themeIdx].light}};">
+          <text class="tool-icon-inner" style="color:{{themeColors[themeIdx].accent}};">C</text>
+        </view>
+        <text class="tool-label">打卡日历</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 4. 我的数据 -->
+  <view class="data-list-section">
+    <view class="data-list-item" bindtap="goToWrongWords">
+      <view class="dl-icon-circle wrong-icon">
+        <text class="dl-icon-inner">W</text>
+      </view>
+      <text class="dl-label">我的错词</text>
+      <text class="dl-value">{{wrongWordsCount}}个</text>
+      <text class="dl-arrow">></text>
+    </view>
+    <view class="data-list-item" bindtap="goToVocabBook">
+      <view class="dl-icon-circle" style="background:{{themeColors[themeIdx].light}};">
+        <text class="dl-icon-inner" style="color:{{themeColors[themeIdx].accent}};">V</text>
+      </view>
+      <text class="dl-label">我的生词本</text>
+      <text class="dl-value">{{vocabBookCount}}个</text>
+      <text class="dl-arrow">></text>
+    </view>
+    <view class="data-list-item data-list-item-last" bindtap="goToDictationRecords">
+      <view class="dl-icon-circle dictation-icon">
+        <text class="dl-icon-inner">D</text>
+      </view>
+      <text class="dl-label">听写记录</text>
+      <text class="dl-value">{{dictationCount}}条</text>
+      <text class="dl-arrow">></text>
+    </view>
+  </view>
+
+  <!-- 5. 设置 -->
+  <view class="setting-section">
+    <view class="setting-item" bindtap="goToStudySetting">
+      <view class="setting-icon-circle study" style="background:{{themeColors[themeIdx].light}};">
+        <text class="setting-icon-inner" style="color:{{themeColors[themeIdx].accent}};">S</text>
+      </view>
+      <text class="setting-name">学习设置</text>
+      <text class="setting-arrow">></text>
+    </view>
+    <view class="setting-item" bindtap="switchTheme">
+      <view class="setting-icon-circle" style="background:{{themeColors[themeIdx].light}};">
+        <text class="setting-icon-inner" style="color:{{themeColors[themeIdx].accent}};">T</text>
+      </view>
+      <text class="setting-name">个性换肤</text>
+      <text class="setting-value" style="color:{{themeColors[themeIdx].accent}};">{{cardThemes[themeIdx].name}}</text>
+      <text class="setting-arrow">></text>
+    </view>
+    <view class="setting-item" bindtap="goToSetting">
+      <view class="setting-icon-circle config">
+        <text class="setting-icon-inner config-icon">C</text>
+      </view>
+      <text class="setting-name">设置</text>
+      <text class="setting-arrow">></text>
+    </view>
+  </view>
+
+  <!-- 6. 主题指示 -->
+  <view class="theme-footer">
+    <text class="theme-foot-text">当前主题: {{cardThemes[themeIdx].name || '默认'}}</text>
+  </view>
+</view>
