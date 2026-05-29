@@ -1,6 +1,7 @@
 const app = require('./app');
-const sequelize = require('./db');
+const sequelize = require('../db');
 const config = require('./config');
+require('../models');
 
 async function start() {
   try {

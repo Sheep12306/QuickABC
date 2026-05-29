@@ -1,4 +1,4 @@
-const { User } = require('../models');
+const { User } = require('../../models');
 const { success, error } = require('../utils/response');
 
 // GET /api/user/profile

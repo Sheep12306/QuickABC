@@ -1,4 +1,4 @@
-const { WrongWord } = require('../models');
+const { WrongWord } = require('../../models');
 const { success, error } = require('../utils/response');
 
 // POST /api/wrong-words

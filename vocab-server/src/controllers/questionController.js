@@ -1,4 +1,4 @@
-const { Question } = require('../models');
+const { Question } = require('../../models');
 const { success, error } = require('../utils/response');
 
 // GET /api/questions

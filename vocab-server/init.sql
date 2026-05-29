@@ -4,7 +4,7 @@
 -- 用法: mysql -u root -p < init.sql
 -- ============================================
 
-CREATE DATABASE IF NOT EXISTS vocab_app
+CREATE DATABASE IF NOT EXISTS vocab_db
   DEFAULT CHARACTER SET utf8mb4
   DEFAULT COLLATE utf8mb4_unicode_ci;
 

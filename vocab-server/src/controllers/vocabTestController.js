@@ -1,4 +1,4 @@
-const { VocabTestRecord, User } = require('../models');
+const { VocabTestRecord, User } = require('../../models');
 const { success, error } = require('../utils/response');
 
 // GET /api/vocab-records

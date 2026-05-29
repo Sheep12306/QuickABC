@@ -1,4 +1,4 @@
-const { Word } = require('../models');
+const { Word } = require('../../models');
 const { success, error } = require('../utils/response');
 
 async function getWordsByBookId(req, res) {

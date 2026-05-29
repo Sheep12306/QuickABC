@@ -1,4 +1,4 @@
-const { WordBook } = require('../models');
+const { WordBook } = require('../../models');
 const { success, error } = require('../utils/response');
 
 async function getAllWordBooks(req, res) {

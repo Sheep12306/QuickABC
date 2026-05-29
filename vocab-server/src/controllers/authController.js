@@ -1,6 +1,6 @@
 const jwt = require('jsonwebtoken');
 const config = require('../config');
-const { User } = require('../models');
+const { User } = require('../../models');
 const { success, fail, error } = require('../utils/response');
 const { code2session } = require('../utils/wechat');
 

@@ -3,7 +3,7 @@ const sequelize = require('../db');
 
 const Word = sequelize.define('Word', {
   id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
-  bookId: { type: DataTypes.INTEGER, allowNull: false, field: 'book_id' },
+  bookId: { type: DataTypes.INTEGER, allowNull: true, field: 'book_id', references: { model: 'word_books', key: 'id' }, onDelete: 'SET NULL' },
   word: { type: DataTypes.STRING(128), allowNull: false },
   phonetic: { type: DataTypes.STRING(128), defaultValue: '' },
   part: { type: DataTypes.STRING(16), defaultValue: '' },

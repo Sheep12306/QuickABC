@@ -1,4 +1,4 @@
-const { UserBookProgress, UserLearnedWords, UserLearnRecord, WordStudyRecord } = require('../models');
+const { UserBookProgress, UserLearnedWords, UserLearnRecord, WordStudyRecord } = require('../../models');
 const { success, error } = require('../utils/response');
 
 // GET /api/study/progress/:bookId
