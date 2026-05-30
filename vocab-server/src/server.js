@@ -8,9 +8,7 @@ async function start() {
     await sequelize.authenticate();
     console.log('Database connected.');
 
-    // 首次部署用 { alter: true } 自动建表，之后改回 sync() 即可
-    const syncOption = process.env.DB_SYNC_ALTER === 'true' ? { alter: true } : {};
-    await sequelize.sync(syncOption);
+    await sequelize.sync();
     console.log('Models synced.');
 
     app.listen(config.port, () => {
