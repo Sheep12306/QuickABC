@@ -1,3 +1,5 @@
+const api = require('../../utils/api');
+
 Page({
     data: {
       userInfo: {
@@ -13,7 +15,6 @@ Page({
       phoneNumbers: [],
       selectedPhone: '',
 
-      // Theme
       themeColors: [
         { accent: '#43A047', light: '#E8F5E9' },
         { accent: '#00897B', light: '#E0F2F1' },
@@ -30,7 +31,6 @@ Page({
       ],
       themeIdx: 0,
 
-      // Study stats
       todayWords: 0,
       totalWords: 0,
       accuracy: 0,
@@ -45,10 +45,9 @@ Page({
 
     onLoad() {
       this.setData({ themeIdx: getApp().globalData.cardThemeIndex || 0 });
-      this.initCloud();
       this.checkLocalLoginStatus();
       this.loadLocalStats();
-      this.syncDataFromCloud();
+      this.syncDataFromServer();
     },
 
     onShow() {
@@ -77,7 +76,6 @@ Page({
       }
     },
 
-    // ===== Phone modal (was missing) =====
     showPhoneModal() {
       wx.showModal({
         title: '绑定手机号',
@@ -99,63 +97,31 @@ Page({
       });
     },
 
-    // ===== Cloud init =====
-    initCloud() {
-      if (!wx.cloud) {
-        wx.showToast({ title: '微信版本过低', icon: 'none' });
-        return;
-      }
-      wx.cloud.init({
-        env: 'cloud1-1gfs1z6a4027d442',
-        traceUser: true
-      });
-    },
-
-    async syncDataFromCloud() {
+    async syncDataFromServer() {
       try {
-        const openid = await this.getOpenid();
-        if (openid) {
-          const userProfile = await this.pullUserProfile();
-          if (userProfile && userProfile._id) {
-            this.setData({
-              isLogin: true,
-              userId: userProfile._id,
-              userInfo: {
-                avatarUrl: userProfile.avatar || this.data.userInfo.avatarUrl,
-                nickName: userProfile.nickname || this.data.userInfo.nickName
-              }
-            });
-            wx.setStorageSync('hasWechatLogin', true);
-            wx.setStorageSync('userId', userProfile._id);
-            await this.pullLatestStudyData();
-          } else {
-            this.clearLoginStatus();
-          }
-        }
-      } catch (err) {
-        console.error('同步失败', err);
-      }
-    },
+        const openid = wx.getStorageSync('openid');
+        const token = wx.getStorageSync('token');
+        if (!openid && !token) return;
 
-    async getOpenid() {
-      const cachedOpenid = wx.getStorageSync('openid');
-      if (cachedOpenid) return cachedOpenid;
-      try {
-        const loginRes = await wx.login({});
-        if (loginRes.code) {
-          const cloudRes = await wx.cloud.callFunction({
-            name: 'login',
-            data: { code: loginRes.code, action: 'getOpenid' }
+        const userProfile = await this.pullUserProfile();
+        if (userProfile && userProfile.id) {
+          this.setData({
+            isLogin: true,
+            userId: userProfile.id,
+            userInfo: {
+              avatarUrl: userProfile.avatar || this.data.userInfo.avatarUrl,
+              nickName: userProfile.nickname || this.data.userInfo.nickName
+            }
           });
-          if (cloudRes.result?.openid) {
-            wx.setStorageSync('openid', cloudRes.result.openid);
-            return cloudRes.result.openid;
-          }
+          wx.setStorageSync('hasWechatLogin', true);
+          wx.setStorageSync('userId', userProfile.id);
+          await this.pullLatestStudyData();
+        } else {
+          this.clearLoginStatus();
         }
       } catch (err) {
-        console.error('获取 openid 失败', err);
+        console.error('sync failed', err);
       }
-      return null;
     },
 
     checkLocalLoginStatus() {
@@ -178,6 +144,8 @@ Page({
       wx.removeStorageSync('hasWechatLogin');
       wx.removeStorageSync('userId');
       wx.removeStorageSync('userInfo');
+      wx.removeStorageSync('token');
+      wx.removeStorageSync('openid');
       this.setData({
         isLogin: false,
         userId: '',
@@ -185,7 +153,6 @@ Page({
       });
     },
 
-    // ===== WeChat login =====
     async wechatAuthLogin() {
       try {
         const userRes = await wx.getUserProfile({
@@ -194,35 +161,30 @@ Page({
         });
         wx.showLoading({ title: '登录中...' });
         const loginRes = await wx.login({});
-        if (!loginRes.code) throw new Error('登录凭证失败');
+        if (!loginRes.code) throw new Error('login code failed');
+
         const newUserInfo = userRes.userInfo;
         this.setData({ userInfo: newUserInfo });
         wx.setStorageSync('userInfo', newUserInfo);
-        wx.setStorageSync('wxCode', loginRes.code);
-        await this.getOpenid();
-        const cloudRes = await wx.cloud.callFunction({
-          name: 'login',
-          data: {
-            code: loginRes.code,
-            action: 'login',
-            userInfo: newUserInfo,
-            openid: wx.getStorageSync('openid')
-          }
-        });
-        if (cloudRes.result?.code === 200) {
-          const userData = cloudRes.result.data;
+
+        const res = await api.login(loginRes.code, newUserInfo);
+
+        if (res.code === 200 && res.data) {
+          const { token, user } = res.data;
+          wx.setStorageSync('token', token);
+          wx.setStorageSync('openid', user.openid);
           wx.setStorageSync('hasWechatLogin', true);
-          wx.setStorageSync('userId', userData._id);
+          wx.setStorageSync('userId', user.id);
           this.setData({
             isLogin: true,
-            userId: userData._id,
-            userLevel: userData.level || 1,
-            checkInDays: userData.checkInDays || 0
+            userId: user.id,
+            userLevel: user.level || 1,
+            checkInDays: user.checkInDays || 0
           });
           wx.showToast({ title: '登录成功', icon: 'success' });
           await this.pullLatestStudyData();
         } else {
-          throw new Error(cloudRes.result?.msg || '登录失败');
+          throw new Error(res.msg || 'login failed');
         }
       } catch (err) {
         console.error(err);
@@ -234,15 +196,12 @@ Page({
     },
 
     async pullUserProfile() {
-      const openid = wx.getStorageSync('openid');
-      if (!openid) return null;
+      const token = wx.getStorageSync('token');
+      if (!token) return null;
       try {
-        const res = await wx.cloud.callFunction({
-          name: 'login',
-          data: { action: 'getUserInfo', openid: openid }
-        });
-        if (res.result?.code === 200 && res.result.data) {
-          const profile = res.result.data;
+        const res = await api.getUserInfo();
+        if (res.code === 200 && res.data) {
+          const profile = res.data;
           const userInfo = {
             avatarUrl: profile.avatar || this.data.userInfo.avatarUrl,
             nickName: profile.nickname || this.data.userInfo.nickName
@@ -252,31 +211,28 @@ Page({
           return profile;
         }
       } catch (err) {
-        console.error('拉取 profile 失败', err);
+        console.error('pull profile failed', err);
       }
       return null;
     },
 
     async pullLatestStudyData() {
-      const openid = wx.getStorageSync('openid');
-      if (!openid) return;
+      const token = wx.getStorageSync('token');
+      if (!token) return;
       try {
-        const res = await wx.cloud.callFunction({
-          name: 'getStudyData',
-          data: { openid: openid }
-        });
-        if (res.result?.code === 200) {
-          const d = res.result.data;
+        const res = await api.getStudyData();
+        if (res.code === 200 && res.data) {
+          const d = res.data;
           this.setData({
-            checkInDays: d.checkInDays,
-            lastVocabScore: d.vocabCount,
-            userLevel: d.level
+            checkInDays: d.checkInDays || 0,
+            lastVocabScore: d.vocabCount || 0,
+            userLevel: d.level || 1
           });
-          wx.setStorageSync('checkInDays', d.checkInDays);
-          wx.setStorageSync('userLevel', d.level);
+          wx.setStorageSync('checkInDays', d.checkInDays || 0);
+          wx.setStorageSync('userLevel', d.level || 1);
         }
       } catch (err) {
-        console.error('拉取学习数据失败', err);
+        console.error('pull study data failed', err);
       }
     },
 
@@ -286,21 +242,16 @@ Page({
         return;
       }
       try {
-        await wx.cloud.callFunction({
-          name: 'saveStudyData',
-          data: {
-            openid: wx.getStorageSync('openid'),
-            checkInDays: this.data.checkInDays,
-            vocabCount: this.data.lastVocabScore,
-            level: this.data.userLevel
-          }
+        await api.saveStudyData({
+          checkInDays: this.data.checkInDays,
+          vocabCount: this.data.lastVocabScore,
+          level: this.data.userLevel
         });
       } catch (err) {
-        console.error('保存失败', err);
+        console.error('save failed', err);
       }
     },
 
-    // ===== Daily check-in =====
     async checkIn() {
       if (!this.data.isLogin) {
         wx.showToast({ title: '请先登录', icon: 'none' });
@@ -320,7 +271,6 @@ Page({
       }
     },
 
-    // ===== Navigation =====
     goToProfile() {
       wx.navigateTo({ url: '/pages/profile/profile' });
     },

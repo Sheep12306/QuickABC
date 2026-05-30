@@ -1,3 +1,5 @@
+const api = require('../../utils/api');
+
 Page({
     data: {
       mixTitle: '',
@@ -119,34 +121,22 @@ Page({
     // 新增：从数据库加载对应bookId+group的单词（保留，作为降级逻辑）
     async getWordsFromDB(bookId, group) {
       try {
-        // 1. 查询已学单词ID（严格匹配字段）
-        const resRecord = await wx.cloud.callFunction({
-          name: 'getLearnedWordIds',
-          data: {
-            bookId: bookId.toString(), // 和保存时一致（字符串）
-            groupNum: group
-          }
-        });
-  
-        if (resRecord.result.code !== 200 || resRecord.result.data.length === 0) {
-          return []; // 不显示示范单词
-        }
-  
-        const learnedWordIds = resRecord.result.data[0].wordIds;
-        if (learnedWordIds.length === 0) {
+        const resRecord = await api.getLearnedWordIds(bookId, group);
+
+        if (resRecord.code !== 200 || !resRecord.data || resRecord.data.length === 0) {
           return [];
         }
-  
-        // 2. 根据ID查询真实单词
-        const resWords = await wx.cloud.callFunction({
-          name: 'getWordsByIds',
-          data: { wordIds: learnedWordIds }
-        });
-  
-        if (resWords.result.code === 200 && resWords.result.data.length > 0) {
-          // 格式化单词（适配复习页面结构）
-          return resWords.result.data.map(word => ({
-            id: word._id || word.id,
+
+        const learnedWordIds = resRecord.data[0].wordIds;
+        if (!learnedWordIds || learnedWordIds.length === 0) {
+          return [];
+        }
+
+        const resWords = await api.getWordsByIds(learnedWordIds);
+
+        if (resWords.code === 200 && resWords.data.length > 0) {
+          return resWords.data.map(word => ({
+            id: word.id,
             en: word.word || word.en,
             phonetic: word.phonetic || '',
             part: word.part || '',
@@ -342,16 +332,10 @@ Page({
     this.saveWrongWordToLocal(currentWord);
     
     // 原有云函数上传逻辑（保留，作为兜底备份）
-    wx.cloud.callFunction({
-      name: 'addWrongWord', // 你的云函数名称
-      data: {
-        word: currentWord // 传递单词完整数据
-      }
-    }).then(res => {
-      console.log('错词自动上传成功：', res.result);
+    api.addWrongWord(currentWord).then(res => {
+      console.log('wrong word saved:', res);
     }).catch(err => {
-      console.error('错词上传失败：', err);
-      // 失败仅打印日志，不影响原有功能执行
+      console.error('wrong word save failed:', err);
     });
     
     this.setData({

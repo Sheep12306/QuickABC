@@ -1,3 +1,5 @@
+const api = require('../../utils/api');
+
 Page({
     data: {
       // 用户信息
@@ -38,8 +40,6 @@ Page({
     },
   
     onLoad: function() {
-      // 初始化云开发
-      this.initCloud();
       // 1. 先加载数据库中的单词书列表
       this.loadWordBooksFromDB();
       // 2. 读取本地存储的当前单词书
@@ -50,37 +50,18 @@ Page({
       this.updateLearningData();
     },
   
-    // 初始化云开发
-    initCloud() {
-      if (!wx.cloud) {
-        wx.showToast({
-          title: '当前微信版本不支持云开发',
-          icon: 'none'
-        });
-        return;
-      }
-      wx.cloud.init({
-        env: 'cloud1-1gfs1z6a4027d442', // 替换为你的云环境ID
-        traceUser: true
-      });
-    },
-  
     // 从数据库加载所有单词书
     async loadWordBooksFromDB() {
       try {
-        // 调用云函数获取单词书列表
-        const res = await wx.cloud.callFunction({
-          name: 'getAllWordBooks'
-        });
-  
-        if (res.result.code === 200 && res.result.data.length > 0) {
+        const res = await api.getAllWordBooks();
+
+        if (res.code === 200 && res.data.length > 0) {
           this.setData({
-            wordBooks: res.result.data // 数据库中的单词书列表（如小学单词书）
+            wordBooks: res.data
           });
-  
-          // 如果本地没有保存的单词书，默认选第一本
+
           if (!wx.getStorageSync('currentBook')) {
-            const defaultBook = res.result.data[0];
+            const defaultBook = res.data[0];
             this.setData({ currentBook: defaultBook });
             wx.setStorageSync('currentBook', defaultBook);
             // 加载默认单词书的学习数据
@@ -118,13 +99,10 @@ Page({
     // 加载指定单词书的学习数据（从数据库）
     async loadBookLearningData(bookId) {
       try {
-        const res = await wx.cloud.callFunction({
-          name: 'getBookLearningData',
-          data: { bookId }
-        });
-  
-        if (res.result.code === 200) {
-          const data = res.result.data;
+        const res = await api.getBookLearningData(bookId);
+
+        if (res.code === 200) {
+          const data = res.data;
           this.setData({
             todayLearned: data.todayLearned || 0,
             totalLearned: data.totalLearned || 0,

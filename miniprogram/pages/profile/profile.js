@@ -1,3 +1,5 @@
+const api = require('../../utils/api');
+
 Page({
     data: {
       userInfo: {
@@ -29,7 +31,6 @@ Page({
 
     onLoad() {
       this.setData({ themeIdx: getApp().globalData.cardThemeIndex || 0 });
-      this.initCloud();
       this.loadUserInfo();
     },
 
@@ -37,27 +38,13 @@ Page({
       this.setData({ themeIdx: getApp().globalData.cardThemeIndex || 0 });
     },
 
-    initCloud() {
-      if (!wx.cloud) {
-        wx.showToast({ title: '微信版本过低，不支持云开发', icon: 'none' });
-        return;
-      }
-      wx.cloud.init({
-        env: 'cloud1-1gfs1z6a4027d442',
-        traceUser: true
-      });
-    },
-
     async loadUserInfo() {
       try {
-        const openid = wx.getStorageSync('openid');
-        if (openid) {
-          const res = await wx.cloud.callFunction({
-            name: 'getUserProfile',
-            data: { openid }
-          });
-          if (res.result.code === 200 && res.result.data) {
-            const cloudUserInfo = res.result.data;
+        const token = wx.getStorageSync('token');
+        if (token) {
+          const res = await api.getProfile();
+          if (res.code === 200 && res.data) {
+            const cloudUserInfo = res.data;
             const gradeIndex = this.data.gradeList.indexOf(cloudUserInfo.grade);
             this.setData({
               userInfo: {
@@ -172,20 +159,9 @@ Page({
       wx.showLoading({ title: '保存中...' });
 
       try {
-        const openid = wx.getStorageSync('openid');
-        if (!openid) {
-          wx.hideLoading();
-          this.setData({ isSaving: false });
-          wx.showToast({ title: '请先登录', icon: 'none' });
-          return;
-        }
+        const res = await api.saveProfile(userInfo);
 
-        const res = await wx.cloud.callFunction({
-          name: 'saveUserProfile',
-          data: { openid, userInfo }
-        });
-
-        if (res.result.code === 200) {
+        if (res.code === 200) {
           this.saveToStorageNormalized(userInfo);
           getApp().globalData.profileUpdated = Date.now();
           wx.hideLoading();
@@ -194,7 +170,7 @@ Page({
         } else {
           wx.hideLoading();
           this.setData({ isSaving: false });
-          wx.showToast({ title: res.result.msg || '保存失败', icon: 'none' });
+          wx.showToast({ title: res.msg || '保存失败', icon: 'none' });
         }
       } catch (err) {
         console.error('保存个人信息失败：', err);

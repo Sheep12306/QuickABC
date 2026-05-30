@@ -1,20 +1,51 @@
 // app.js
+const api = require('./utils/api');
+
 App({
-  onLaunch: function () {
-    this.globalData = {
-      // env 参数说明：
-      // env 参数决定接下来小程序发起的云开发调用（wx.cloud.xxx）会请求到哪个云环境的资源
-      // 此处请填入环境 ID, 环境 ID 可在微信开发者工具右上顶部工具栏点击云开发按钮打开获取
-      env: " ",
-      cardThemeIndex: 0,
-    };
-    if (!wx.cloud) {
-      console.error("请使用 2.2.3 或以上的基础库以使用云能力");
-    } else {
-      wx.cloud.init({
-        env: this.globalData.env,
-        traceUser: true,
-      });
-    }
+  globalData: {
+    cardThemeIndex: 0,
+    token: null,
+    userInfo: null
   },
+
+  onLaunch() {
+    // 小程序登录
+    wx.login({
+      success: async (res) => {
+        if (!res.code) {
+          console.error('获取微信登录code失败');
+          return;
+        }
+        console.log('微信登录code:', res.code);
+
+        try {
+          // 调用后端登录接口
+          const loginRes = await api.login(res.code);
+          console.log('登录返回：', loginRes);
+
+          if (loginRes.code === 200 && loginRes.data) {
+            const { token, user } = loginRes.data;
+
+            if (token) {
+              wx.setStorageSync('token', token);
+              this.globalData.token = token;
+              console.log('Token保存成功');
+            }
+
+            if (user) {
+              this.globalData.userInfo = user;
+              wx.setStorageSync('userInfo', user);
+              wx.setStorageSync('openid', user.openid); // 兼容旧页面
+              console.log('用户信息：', user.nickname);
+            }
+          }
+        } catch (err) {
+          console.error('登录请求失败', err);
+        }
+      },
+      fail: (err) => {
+        console.error('wx.login失败', err);
+      }
+    });
+  }
 });

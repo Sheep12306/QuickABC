@@ -1,3 +1,5 @@
+const api = require('../../utils/api');
+
 Page({
     data: {
       themeColors: [
@@ -32,19 +34,9 @@ Page({
         const now = new Date();
         const newTime = `${now.getFullYear()}-${(now.getMonth()+1).toString().padStart(2, '0')}-${now.getDate().toString().padStart(2, '0')}`;
 
-        const openid = wx.getStorageSync('openid');
-        if (!openid) {
-          wx.hideLoading();
-          wx.showToast({ title: '请先登录', icon: 'none' });
-          return;
-        }
+        const res = await api.saveVocabTestRecord(newScore, newTime);
 
-        const res = await wx.cloud.callFunction({
-          name: 'saveVocabTest',
-          data: { action: 'save', openid, score: newScore, testTime: newTime }
-        });
-
-        if (res.result?.code === 200) {
+        if (res.code === 200) {
           wx.setStorageSync('lastVocabScore', newScore);
           let history = wx.getStorageSync('vocabHistory') || [];
           history.unshift({ testTime: newTime, score: newScore });
@@ -52,7 +44,7 @@ Page({
           wx.showToast({ title: `测试完成！词汇量：${newScore}`, icon: 'success' });
           setTimeout(() => wx.navigateBack(), 1500);
         } else {
-          wx.showToast({ title: res.result?.msg || '保存失败', icon: 'none' });
+          wx.showToast({ title: res.msg || '保存失败', icon: 'none' });
         }
       } catch (err) {
         console.error('保存测试结果失败', err);

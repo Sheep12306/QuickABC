@@ -1,3 +1,5 @@
+const api = require('../../utils/api');
+
 Page({
     data: {
       lastVocabScore: 0,
@@ -21,7 +23,6 @@ Page({
 
     onLoad() {
       this.setData({ themeIdx: getApp().globalData.cardThemeIndex || 0 });
-      this.initCloud();
       this.getVocabTestRecords();
     },
 
@@ -29,31 +30,12 @@ Page({
       this.setData({ themeIdx: getApp().globalData.cardThemeIndex || 0 });
     },
 
-    initCloud() {
-      if (!wx.cloud) {
-        wx.showToast({ title: '微信版本过低', icon: 'none' });
-        return;
-      }
-      wx.cloud.init({
-        env: 'cloud1-1gfs1z6a4027d442',
-        traceUser: true
-      });
-    },
-
     async getVocabTestRecords() {
       wx.showLoading({ title: '加载中...' });
       try {
-        const openid = wx.getStorageSync('openid');
-        if (!openid) {
-          wx.showToast({ title: '请先登录', icon: 'none' });
-          return;
-        }
-        const res = await wx.cloud.callFunction({
-          name: 'saveVocabTest',
-          data: { action: 'get', openid: openid }
-        });
-        if (res.result?.code === 200) {
-          const records = res.result.data || [];
+        const res = await api.getVocabTestRecords();
+        if (res.code === 200) {
+          const records = res.data || [];
           const vocabHistory = records.map(record => ({
             testTime: record.testTime,
             score: record.score
@@ -63,7 +45,7 @@ Page({
           wx.setStorageSync('lastVocabScore', lastVocabScore);
           wx.setStorageSync('vocabHistory', vocabHistory);
         } else {
-          wx.showToast({ title: res.result?.msg || '获取记录失败', icon: 'none' });
+          wx.showToast({ title: res.msg || '获取记录失败', icon: 'none' });
         }
       } catch (err) {
         console.error('获取词汇量测试记录失败', err);

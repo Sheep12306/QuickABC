@@ -1,5 +1,5 @@
 // 后端 API 地址（部署时改为你的阿里云服务器域名）
-const API_BASE = 'https://your-domain.com/api';
+const API_BASE = 'http://115.29.149.87:3001/api';
 
 function request(method, path, data) {
   const token = wx.getStorageSync('token') || '';
