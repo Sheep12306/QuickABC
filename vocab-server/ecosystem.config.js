@@ -2,7 +2,7 @@ module.exports = {
   apps: [{
     name: 'vocab-server',
     script: 'src/server.js',
-    cwd: '/opt/vocab-server',
+    cwd: '/opt/QuickABC/vocab-server',
     env: {
       NODE_ENV: 'production',
     },
