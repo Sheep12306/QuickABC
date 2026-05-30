@@ -33,6 +33,6 @@ jobs:
           script: |
             cd /opt/QuickABC/vocab-server
             npm install --production
-            pm2 restart vocab-server
+            pm2 restart vocab-server || pm2 start ecosystem.config.js && pm2 save
             sleep 3
             curl -s http://127.0.0.1:3001/health
