@@ -21,9 +21,10 @@ jobs:
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           source: 'vocab-server'
-          target: '/opt/QuickABC/vocab-server'
-          strip_components: 1
+          target: '/opt/QuickABC'
+          strip_components: 0
           overwrite: true
+          rm: false
 
       - name: Restart service
         uses: appleboy/ssh-action@v1.0.3
