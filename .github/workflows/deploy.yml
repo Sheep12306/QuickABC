@@ -10,16 +10,28 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: Deploy to Alibaba Cloud
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Upload files to server
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          source: 'vocab-server'
+          target: '/opt/QuickABC/vocab-server'
+          strip_components: 1
+          overwrite: true
+
+      - name: Restart service
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
-            cd /opt/QuickABC
-            git pull origin main
-            cd vocab-server
+            cd /opt/QuickABC/vocab-server
             npm install --production
             pm2 restart vocab-server
             sleep 3
