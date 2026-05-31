@@ -5,11 +5,12 @@ const { success, error } = require('../utils/response');
 async function getBookProgress(req, res) {
   try {
     const { bookId } = req.params;
+    console.log(`[getBookProgress] userId=${req.userId}, bookId=${bookId}`);
 
-    // 从 UserLearnedWords 汇总进度（user_book_progress 无人写入，废弃不用）
     const records = await UserLearnedWords.findAll({
       where: { userId: req.userId, bookId },
     });
+    console.log(`[getBookProgress] found ${records.length} records`);
 
     const allIds = new Set();
     let todayCount = 0;
@@ -17,11 +18,14 @@ async function getBookProgress(req, res) {
 
     records.forEach(r => {
       const ids = r.wordIds || [];
+      console.log(`  groupNum=${r.groupNum}, wordIds=${JSON.stringify(ids)}`);
       ids.forEach(id => allIds.add(id));
       if (r.updatedAt && new Date(r.updatedAt).toDateString() === todayStr) {
         todayCount += ids.length;
       }
     });
+
+    console.log(`[getBookProgress] totalLearned=${allIds.size}, todayLearned=${todayCount}`);
 
     return res.json(success({
       todayLearned: todayCount,

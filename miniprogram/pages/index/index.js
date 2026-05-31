@@ -72,7 +72,13 @@ Page({
       try {
         const savedBook = wx.getStorageSync('currentBook');
         if (savedBook && savedBook.id) {
-          this.setData({ currentBook: savedBook });
+          // 从 wordBooks 列表中拿完整数据（含 totalWords）
+          const fullBook = this.data.wordBooks.find(b => b.id === savedBook.id);
+          if (fullBook) {
+            this.setData({ currentBook: fullBook });
+          } else {
+            this.setData({ currentBook: savedBook });
+          }
           this.loadBookLearningData(savedBook.id);
           this.loadPreviewWords(savedBook.id);
         }
@@ -83,10 +89,16 @@ Page({
 
     async loadBookLearningData(bookId) {
       try {
+        // 确保 currentBook 有 totalWords
+        const fullBook = this.data.wordBooks.find(b => b.id === bookId);
+        if (fullBook && fullBook.totalWords) {
+          this.setData({ 'currentBook.totalWords': fullBook.totalWords });
+        }
+
         const res = await api.getBookLearningData(bookId);
         if (res.code === 200) {
           const data = res.data;
-          const totalWords = this.data.currentBook.totalWords || 1;
+          const totalWords = this.data.currentBook.totalWords || fullBook?.totalWords || 1;
           const actualProgress = Math.round((data.totalLearned || 0) / totalWords * 100);
           const progress = Math.floor(actualProgress / 10) * 10;
 
