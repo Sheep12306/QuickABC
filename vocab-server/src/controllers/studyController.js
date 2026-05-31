@@ -5,17 +5,27 @@ const { success, error } = require('../utils/response');
 async function getBookProgress(req, res) {
   try {
     const { bookId } = req.params;
-    const record = await UserBookProgress.findOne({
+
+    // 从 UserLearnedWords 汇总进度（user_book_progress 无人写入，废弃不用）
+    const records = await UserLearnedWords.findAll({
       where: { userId: req.userId, bookId },
     });
 
-    if (record) {
-      return res.json(success(record));
-    }
+    const allIds = new Set();
+    let todayCount = 0;
+    const todayStr = new Date().toDateString();
+
+    records.forEach(r => {
+      const ids = r.wordIds || [];
+      ids.forEach(id => allIds.add(id));
+      if (r.updatedAt && new Date(r.updatedAt).toDateString() === todayStr) {
+        todayCount += ids.length;
+      }
+    });
 
     return res.json(success({
-      todayLearned: 0,
-      totalLearned: 0,
+      todayLearned: todayCount,
+      totalLearned: allIds.size,
       accuracy: 0,
       newWordsCount: 0,
       reviewCount: 0,

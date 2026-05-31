@@ -86,13 +86,16 @@
       <text class="setting-name">学习设置</text>
       <text class="setting-arrow">></text>
     </view>
-    <view class="setting-item" bindtap="switchTheme">
+    <view class="setting-item" bindtap="nextTheme">
       <view class="setting-icon-circle" style="background:{{themeColors[themeIdx].light}};">
         <text class="setting-icon-inner" style="color:{{themeColors[themeIdx].accent}};">T</text>
       </view>
       <text class="setting-name">个性换肤</text>
-      <text class="setting-value" style="color:{{themeColors[themeIdx].accent}};">{{cardThemes[themeIdx].name}}</text>
-      <text class="setting-arrow">></text>
+      <view class="skin-controls">
+        <text class="skin-arrow" catchtap="prevTheme">◀</text>
+        <text class="setting-value skin-name" style="color:{{themeColors[themeIdx].accent}};">{{cardThemes[themeIdx].name}}</text>
+        <text class="skin-arrow" catchtap="nextTheme">▶</text>
+      </view>
     </view>
     <view class="setting-item" bindtap="goToSetting">
       <view class="setting-icon-circle config">

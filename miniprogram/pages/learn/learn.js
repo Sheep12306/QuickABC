@@ -76,7 +76,15 @@ Page({
       this.setData({ bookId: bookId.toString() });
       const themeIdx = getApp().globalData.cardThemeIndex || 0;
       this.setData({ themeIdx: themeIdx });
-      this.restoreLearnRecord();
+
+      // 从 index 预览传入的起始分组
+      const startGroup = parseInt(options.startGroup) || 0;
+      if (startGroup > 0) {
+        this.setData({ currentGroup: startGroup });
+        this.loadWords(startGroup);
+      } else {
+        this.restoreLearnRecord();
+      }
 
       this.innerAudioContext = wx.createInnerAudioContext();
       this.innerAudioContext.onPlay(() => console.log('audio play'));
@@ -282,10 +290,8 @@ Page({
       const wordIds = learnedWords.map(word => word.id);
       api.saveLearnedWords(bookId, currentGroup, wordIds).then(res => {
         console.log('saved:', res);
-        wx.showToast({ title: '已保存学习记录', icon: 'success', duration: 1000 });
       }).catch(err => {
         console.error('save failed:', err);
-        wx.showToast({ title: '保存记录失败', icon: 'none' });
       });
     },
 
@@ -336,16 +342,26 @@ Page({
         return;
       }
 
+      const that = this;
       const todayIndex = this.data.currentGroup;
       const learnedGroupList = Array.from({ length: todayIndex }, (_, i) => i + 1);
       const wordsStr = encodeURIComponent(JSON.stringify(learnedWords));
       const { bookId } = this.data;
 
-      wx.navigateTo({
-        url: `/pages/review/review?bookId=${bookId}&todayIndex=${todayIndex}&learnedGroupList=${JSON.stringify(learnedGroupList)}&words=${wordsStr}`,
-        fail: (err) => {
-          console.error('nav to review failed:', err);
-          wx.showToast({ title: '跳转失败，请重试', icon: 'none' });
+      wx.showModal({
+        title: '进入复习',
+        content: '进入复习后当前学习进度将自动保存，确认吗？',
+        success(res) {
+          if (res.confirm) {
+            that.saveCurrentGroupLearnedRecord();
+            wx.navigateTo({
+              url: `/pages/review/review?bookId=${bookId}&todayIndex=${todayIndex}&learnedGroupList=${JSON.stringify(learnedGroupList)}&words=${wordsStr}`,
+              fail: (err) => {
+                console.error('nav to review failed:', err);
+                wx.showToast({ title: '跳转失败，请重试', icon: 'none' });
+              }
+            });
+          }
         }
       });
     },
@@ -363,9 +379,11 @@ Page({
     },
 
     onHide: function () {
+      this.saveCurrentGroupLearnedRecord();
       this.saveLearnRecord();
     },
     onUnload: function () {
+      this.saveCurrentGroupLearnedRecord();
       this.saveLearnRecord();
       if (this.innerAudioContext) {
         try {

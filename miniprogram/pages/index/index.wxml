@@ -27,11 +27,16 @@
         </view>
       </view>
 
-      <!-- 歌词区 -->
+      <!-- 单词预览区 -->
       <view class="lyric-area">
-        <view class="lyric-line {{index === 1 ? 'active' : ''}}" wx:for="{{lyricLines}}" wx:key="word" wx:for-index="index">
-          <text class="lyric-word {{index === 1 ? 'active' : ''}}" style="{{index === 1 ? 'color:' + cardThemes[cardThemeIndex].accent + ';' : ''}}">{{item.word}}</text>
-          <text class="lyric-trans {{index === 1 ? 'active' : ''}}" style="{{index === 1 ? 'color:' + cardThemes[cardThemeIndex].accent + ';' : ''}}">{{item.trans}}</text>
+        <view class="lyric-line {{item._index === previewStart + 1 ? 'active' : ''}}"
+              wx:for="{{visibleWords}}" wx:key="word">
+          <view class="lyric-word-row">
+            <text class="lyric-word {{item._index === previewStart + 1 ? 'active' : ''}}"
+                  style="{{item._index === previewStart + 1 ? 'color:' + cardThemes[cardThemeIndex].accent + ';' : ''}}">{{item.word}}</text>
+          </view>
+          <text class="lyric-trans {{item._index === previewStart + 1 ? 'active' : ''}}"
+                style="{{item._index === previewStart + 1 ? 'color:' + cardThemes[cardThemeIndex].accent + ';' : ''}}">{{item.part}} {{item.meaning}}</text>
         </view>
       </view>
 
@@ -48,15 +53,15 @@
           <progress class="book-progress-bar" percent="{{currentBook.progress || 0}}"
                     stroke-width="6" activeColor="{{cardThemes[cardThemeIndex].accent}}" backgroundColor="rgba(67,160,71,0.10)"/>
           <view class="progress-labels">
-            <text class="progress-left">已掌握 {{currentBook.learned || 0}}</text>
-            <text class="progress-right">词书总词汇 {{currentBook.total || 0}}</text>
+            <text class="progress-left">已掌握 {{totalLearned || 0}}</text>
+            <text class="progress-right">词书总词汇 {{currentBook.totalWords || 0}}</text>
           </view>
         </view>
       </view>
 
-      <!-- 播放器控制区 -->
+      <!-- 单词切换 + 播放控制区 -->
       <view class="player-row">
-        <view class="player-side prev" bindtap="prevTheme">
+        <view class="player-side prev" bindtap="prevWord">
           <view class="skip-icon skip-prev">
             <view class="skip-bar" style="background:{{cardThemes[cardThemeIndex].accent}};"></view>
             <view class="skip-tri" style="border-right-color:{{cardThemes[cardThemeIndex].accent}};"></view>
@@ -67,7 +72,7 @@
           <view class="play-triangle" style="border-left-color:{{cardThemes[cardThemeIndex].accent}};"></view>
         </view>
 
-        <view class="player-side next" bindtap="nextTheme">
+        <view class="player-side next" bindtap="nextWord">
           <view class="skip-icon skip-next">
             <view class="skip-tri" style="border-left-color:{{cardThemes[cardThemeIndex].accent}};"></view>
             <view class="skip-bar" style="background:{{cardThemes[cardThemeIndex].accent}};"></view>

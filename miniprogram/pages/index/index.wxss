@@ -195,10 +195,17 @@
 
 .lyric-line {
   display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8rpx;
+  transition: all 0.4s ease;
+}
+
+.lyric-word-row {
+  display: flex;
   align-items: baseline;
   justify-content: center;
-  gap: 64rpx;
-  transition: all 0.4s ease;
+  gap: 16rpx;
 }
 
 .lyric-word {
@@ -206,21 +213,27 @@
   color: #C0C4C0;
   font-weight: 400;
   letter-spacing: 3rpx;
-  min-width: 200rpx;
-  text-align: right;
+}
+
+.lyric-phonetic {
+  font-size: 22rpx;
+  color: #B0B8B0;
 }
 
 .lyric-trans {
-  font-size: 28rpx;
+  font-size: 26rpx;
   color: #CCCFCC;
   font-weight: 400;
-  min-width: 120rpx;
-  text-align: left;
+  max-width: 500rpx;
+  text-align: center;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 /* 中间行高亮 */
 .lyric-line.active {
-  transform: scale(1.10);
+  transform: scale(1.12);
 }
 
 .lyric-word.active {
@@ -230,8 +243,9 @@
 }
 
 .lyric-trans.active {
-  font-size: 34rpx;
+  font-size: 32rpx;
   font-weight: 600;
+  color: #666;
 }
 
 /* 主卡中部：词书信息 */

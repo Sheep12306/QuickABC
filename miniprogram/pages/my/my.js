@@ -304,6 +304,15 @@ Page({
       this.setData({ themeIdx: idx });
       getApp().globalData.cardThemeIndex = idx;
     },
+    prevTheme() {
+      const total = this.data.cardThemes.length;
+      const idx = (this.data.themeIdx - 1 + total) % total;
+      this.setData({ themeIdx: idx });
+      getApp().globalData.cardThemeIndex = idx;
+    },
+    nextTheme() {
+      this.switchTheme();
+    },
 
     onUnload() {
       wx.hideLoading();

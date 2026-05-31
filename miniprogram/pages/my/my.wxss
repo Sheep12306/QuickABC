@@ -325,3 +325,20 @@
   font-size: 22rpx;
   color: #A5B8A5;
 }
+
+/* 个性换肤左右箭头 */
+.skin-controls {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+  margin-left: auto;
+}
+.skin-arrow {
+  font-size: 24rpx;
+  color: #888;
+  padding: 8rpx;
+}
+.skin-name {
+  min-width: 80rpx;
+  text-align: center;
+}
