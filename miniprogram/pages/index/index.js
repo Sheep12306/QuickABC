@@ -35,8 +35,9 @@ Page({
     onLoad: function() {
       const themeIdx = getApp().globalData.cardThemeIndex || 0;
       this.setData({ cardThemeIndex: themeIdx });
-      this.loadWordBooksFromDB();
-      this.initCurrentBookFromStorage();
+      this.loadWordBooksFromDB().then(() => {
+        this.initCurrentBookFromStorage();
+      });
     },
 
     onShow: function() {
@@ -89,18 +90,16 @@ Page({
 
     async loadBookLearningData(bookId) {
       try {
-        // 确保 currentBook 有 totalWords
+        // 从已加载的词表拿 totalWords
         const fullBook = this.data.wordBooks.find(b => b.id === bookId);
-        if (fullBook && fullBook.totalWords) {
-          this.setData({ 'currentBook.totalWords': fullBook.totalWords });
-        }
+        const totalWords = fullBook?.totalWords || this.data.currentBook.totalWords || 0;
 
         const res = await api.getBookLearningData(bookId);
         if (res.code === 200) {
           const data = res.data;
-          const totalWords = this.data.currentBook.totalWords || fullBook?.totalWords || 1;
-          const actualProgress = Math.round((data.totalLearned || 0) / totalWords * 100);
-          const progress = Math.floor(actualProgress / 10) * 10;
+          const actualTotal = totalWords || 1; // 兜底防除零
+          const actualProgress = Math.round((data.totalLearned || 0) / actualTotal * 100);
+          const progress = actualTotal > 0 ? Math.floor(actualProgress / 10) * 10 : 0;
 
           this.setData({
             todayLearned: data.todayLearned || 0,
@@ -109,7 +108,7 @@ Page({
             newWordsCount: data.newWordsCount || 0,
             reviewCount: data.reviewCount || 0,
             'currentBook.progress': progress,
-            'currentBook.totalWords': totalWords,
+            'currentBook.totalWords': actualTotal > 1 ? actualTotal : 0,
           });
         }
       } catch (err) {
@@ -160,7 +159,7 @@ Page({
       }
 
       wx.showActionSheet({
-        itemList: this.data.wordBooks.map(book => `${book.name} (${book.totalWords || 0}词, ${book.progress || 0}%)`),
+        itemList: this.data.wordBooks.map(book => `${book.name} (${book.totalWords || 0}词)`),
         success: function(res) {
           const selectedBook = that.data.wordBooks[res.tapIndex];
           that.setData({ currentBook: selectedBook });
