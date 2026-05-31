@@ -60,8 +60,12 @@ async function seed() {
 
     const existing = await WordBook.findByPk(bookConf.id);
     if (existing) {
-      console.log(`跳过: ${bookConf.name} (id=${bookConf.id} 已存在)`);
-      continue;
+      const wordCount = await Word.count({ where: { bookId: bookConf.id } });
+      if (wordCount > 0) {
+        console.log(`跳过: ${bookConf.name} (id=${bookConf.id} 已有 ${wordCount} 词)`);
+        continue;
+      }
+      console.log(`${bookConf.name} 书已存在但无词，补插入...`);
     }
 
     const raw = fs.readFileSync(txtPath, 'utf-8');
@@ -83,13 +87,17 @@ async function seed() {
 
     console.log(`解析完成: ${words.length} 个词`);
 
-    await WordBook.create({
-      id: bookConf.id,
-      name: bookConf.name,
-      description: bookConf.description,
-      totalWords: words.length,
-    });
-    console.log(`单词书已创建: ${bookConf.name} (id=${bookConf.id})`);
+    if (!existing) {
+      await WordBook.create({
+        id: bookConf.id,
+        name: bookConf.name,
+        description: bookConf.description,
+        totalWords: words.length,
+      });
+      console.log(`单词书已创建: ${bookConf.name} (id=${bookConf.id})`);
+    } else {
+      await existing.update({ totalWords: words.length });
+    }
 
     const CHUNK = 500;
     for (let i = 0; i < words.length; i += CHUNK) {
