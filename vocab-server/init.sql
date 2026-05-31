@@ -8,7 +8,7 @@ CREATE DATABASE IF NOT EXISTS vocab_db
   DEFAULT CHARACTER SET utf8mb4
   DEFAULT COLLATE utf8mb4_unicode_ci;
 
-USE vocab_app;
+USE vocab_db;
 
 -- 用户表
 CREATE TABLE IF NOT EXISTS users (

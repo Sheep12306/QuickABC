@@ -33,7 +33,7 @@
           <text class="vocab-phonetic" style="color:{{themeColors[themeIdx].accent}};">[{{item.phonetic}}]</text>
           <text class="vocab-part" wx:if="{{item.part}}">{{item.part}}</text>
         </view>
-        <text class="vocab-meaning">{{item.meaning}}</text>
+        <text class="vocab-meaning">{{item.part}} {{item.meaning}}</text>
       </view>
       <view class="vocab-card-right">
         <view class="vocab-action mastered" bindtap="markMastered" data-index="{{index}}"

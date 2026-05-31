@@ -11,6 +11,10 @@ const BOOKS = [
     file: '4 六级-乱序.txt',
     out: '4 六级-乱序-enriched.txt',
   },
+  {
+    file: '3 四级-乱序.txt',
+    out: '3 四级-乱序-enriched.txt',
+  },
 ];
 
 function parseLine(line) {
@@ -59,6 +63,16 @@ async function main() {
     if (!fs.existsSync(txtPath)) {
       console.error('词表文件不存在:', txtPath);
       continue;
+    }
+    if (fs.existsSync(outPath)) {
+      // 检查是否已 100% 完成
+      const existing = fs.readFileSync(outPath, 'utf-8').split('\n').filter(l => l.trim());
+      const covered = existing.filter(l => l.split('\t')[1]).length;
+      if (covered === existing.length) {
+        console.log(`跳过: ${conf.file} (已完成 100%)`);
+        continue;
+      }
+      console.log(`续补: ${conf.file} (当前 ${covered}/${existing.length})`);
     }
 
     console.log('处理:', conf.file);

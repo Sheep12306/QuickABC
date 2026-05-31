@@ -27,7 +27,7 @@
       <view class="word-section" wx:if="{{wordsVisible}}">
         <text class="dict-word">{{currentWord.en}}</text>
         <text class="dict-phonetic" style="color:{{themeColors[themeIdx].accent}};">[{{currentWord.phonetic}}]</text>
-        <text class="dict-meaning">{{currentWord.meaning}}</text>
+        <text class="dict-meaning">{{currentWord.part}} {{currentWord.meaning}}</text>
       </view>
       <view class="hidden-section" wx:else>
         <text class="hidden-tip">单词已隐藏</text>
@@ -79,7 +79,7 @@
     <scroll-view class="list-content" scroll-y>
       <view class="list-item" wx:for="{{words}}" wx:key="id" data-index="{{index}}" bindtap="selectWordFromList">
         <text class="list-en {{index===currentIndex ? 'active' : ''}}" style="{{index===currentIndex ? 'color:' + themeColors[themeIdx].accent + ';' : ''}}">{{item.en}}</text>
-        <text class="list-meaning">{{item.meaning}}</text>
+        <text class="list-meaning">{{item.part}} {{item.meaning}}</text>
       </view>
     </scroll-view>
   </view>

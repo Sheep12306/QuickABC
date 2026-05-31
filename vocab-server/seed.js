@@ -9,6 +9,12 @@ const DATA_DIR = path.join(__dirname, 'data');
 
 const BOOKS = [
   {
+    id: 11,
+    name: '四级英语词汇',
+    description: '大学英语四级核心词汇（乱序）',
+    file: '3 四级-乱序-enriched.txt',
+  },
+  {
     id: 12,
     name: '六级英语词汇',
     description: '大学英语六级核心词汇（乱序）',

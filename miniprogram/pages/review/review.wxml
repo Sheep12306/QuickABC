@@ -23,7 +23,7 @@
       </view>
 
       <view class="answer-area {{showAnswer ? 'show' : 'hide'}}">
-        <view class="meaning-text">{{currentWord.meaning}}</view>
+        <view class="meaning-text">{{currentWord.part}} {{currentWord.meaning}}</view>
         <view class="correct-btn" wx:if="{{showAnswer && currentMarkedAsKnow}}" bindtap="correctToDontKnow">
           <text>更正为不认识</text>
         </view>

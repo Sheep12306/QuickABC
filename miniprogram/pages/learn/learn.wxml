@@ -28,7 +28,7 @@
 
         <view class="word-info {{item.clickCount === 2 ? 'show' : 'hide'}}">
           <view class="word-part">
-            <text class="part-meaning">{{item.meaning}}</text>
+            <text class="part-meaning">{{item.part}} {{item.meaning}}</text>
           </view>
         </view>
 

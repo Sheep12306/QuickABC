@@ -5,7 +5,10 @@ const path = require('path');
 const fs = require('fs');
 
 const DATA_DIR = path.join(__dirname, 'data');
-const FILE = path.join(DATA_DIR, '4 六级-乱序-enriched.txt');
+const FILES = [
+  '4 六级-乱序-enriched.txt',
+  '3 四级-乱序-enriched.txt',
+];
 
 // 来源1: 有道词典 HTML 页面提取音标
 async function lookupYoudao(word) {
@@ -57,8 +60,15 @@ async function lookup(word) {
 
 async function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
 
-async function main() {
-  const raw = fs.readFileSync(FILE, 'utf-8');
+async function processFile(filename) {
+  const filePath = path.join(DATA_DIR, filename);
+  if (!fs.existsSync(filePath)) {
+    console.log('跳过:', filename, '(文件不存在)');
+    return;
+  }
+
+  console.log('\n处理:', filename);
+  const raw = fs.readFileSync(filePath, 'utf-8');
   const lines = raw.split('\n').filter(l => l.trim());
 
   let processed = 0;
@@ -79,7 +89,6 @@ async function main() {
         outLines.push(line);
       }
 
-      // 限速：每秒 3 个请求
       await sleep(350);
 
       if (processed % 30 === 0) {
@@ -90,10 +99,17 @@ async function main() {
     }
   }
 
-  fs.writeFileSync(FILE, outLines.join('\n'), 'utf-8');
-  console.log(`\n补漏完成: ${processed} 个缺失, 补回 ${fixed} 个`);
+  fs.writeFileSync(filePath, outLines.join('\n'), 'utf-8');
+  console.log(`补漏完成: ${processed} 个缺失, 补回 ${fixed} 个`);
   const total = outLines.filter(l => l.split('\t')[1]).length;
-  console.log(`最终覆盖率: ${total}/${outLines.length} (${(total / outLines.length * 100).toFixed(1)}%)`);
+  console.log(`覆盖率: ${total}/${outLines.length} (${(total / outLines.length * 100).toFixed(1)}%)`);
+}
+
+async function main() {
+  for (const file of FILES) {
+    await processFile(file);
+  }
+  console.log('\n全部完成');
 }
 
 main().catch(err => { console.error(err); process.exit(1); });
