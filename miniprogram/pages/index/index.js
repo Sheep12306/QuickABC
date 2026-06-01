@@ -113,6 +113,9 @@ Page({
             'currentBook.progress': progress,
             'currentBook.totalWords': actualTotal > 1 ? actualTotal : 0,
           });
+          // 同步到本地，供 my 页面读取
+          wx.setStorageSync('todayLearned', data.todayLearned || 0);
+          wx.setStorageSync('totalLearned', data.totalLearned || 0);
         }
       } catch (err) {
         console.error('加载学习数据失败:', err);
@@ -203,7 +206,13 @@ Page({
         itemList: this.data.wordBooks.map(book => `${book.name} (${book.totalWords || 0}词)`),
         success: function(res) {
           const selectedBook = that.data.wordBooks[res.tapIndex];
-          that.setData({ currentBook: selectedBook });
+          // 先清零旧书数据，避免 setData 浅合并导致残留
+          that.setData({
+            currentBook: selectedBook,
+            'currentBook.progress': 0,
+            totalLearned: 0,
+            todayLearned: 0
+          });
           wx.setStorageSync('currentBook', selectedBook);
           that.loadBookLearningData(selectedBook.id);
           that.loadPreviewWords(selectedBook.id);
