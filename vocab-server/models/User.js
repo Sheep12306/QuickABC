@@ -5,7 +5,7 @@ const User = sequelize.define('User', {
   id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
   openid: { type: DataTypes.STRING(64), allowNull: false, unique: true },
   nickname: { type: DataTypes.STRING(64), defaultValue: '' },
-  avatar: { type: DataTypes.STRING(512), defaultValue: '' },
+  avatar: { type: DataTypes.TEXT, defaultValue: '' },
   level: { type: DataTypes.INTEGER, defaultValue: 1 },
   checkInDays: { type: DataTypes.INTEGER, defaultValue: 0, field: 'check_in_days' },
   vocabCount: { type: DataTypes.INTEGER, defaultValue: 0, field: 'vocab_count' },

@@ -132,7 +132,13 @@ Page({
       try {
         const res = await api.uploadAvatar(filePath);
         if (res.code === 200 && res.data) {
-          this.setData({ 'userInfo.avatar': res.data.avatarUrl });
+          const avatarUrl = resolveAvatarUrl(res.data.avatarUrl);
+          this.setData({ 'userInfo.avatar': avatarUrl });
+          // 同步更新本地存储
+          const stored = wx.getStorageSync('userInfo') || {};
+          stored.avatar = avatarUrl;
+          stored.avatarUrl = avatarUrl;
+          wx.setStorageSync('userInfo', stored);
           wx.showToast({ title: '头像已上传', icon: 'success', duration: 1200 });
         }
       } catch (err) {

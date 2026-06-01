@@ -1,29 +1,13 @@
 const multer = require('multer');
-const path = require('path');
-const fs = require('fs');
 const { User } = require('../../models');
 const { success, error } = require('../utils/response');
 
-const uploadDir = path.join(__dirname, '..', '..', 'uploads');
-
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
-    cb(null, uploadDir);
-  },
-  filename: (req, file, cb) => {
-    const ext = path.extname(file.originalname) || '.jpg';
-    cb(null, `avatar_${req.userId}_${Date.now()}${ext}`);
-  }
-});
-
 const upload = multer({
-  storage,
+  storage: multer.memoryStorage(),
   limits: { fileSize: 2 * 1024 * 1024 },
   fileFilter: (req, file, cb) => {
-    const allowed = ['.jpg', '.jpeg', '.png', '.gif', '.webp'];
-    const ext = path.extname(file.originalname).toLowerCase();
-    cb(null, allowed.includes(ext));
+    const allowed = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+    cb(null, allowed.includes(file.mimetype));
   }
 }).single('avatar');
 
@@ -108,10 +92,11 @@ async function uploadAvatar(req, res) {
     }
     if (!req.file) return res.json(error('请选择头像文件'));
 
-    const avatarUrl = `/uploads/${req.file.filename}`;
+    const b64 = req.file.buffer.toString('base64');
+    const dataUri = `data:${req.file.mimetype};base64,${b64}`;
     try {
-      await req.user.update({ avatar: avatarUrl, updatedAt: new Date() });
-      return res.json(success({ avatarUrl }, '头像上传成功'));
+      await req.user.update({ avatar: dataUri, updatedAt: new Date() });
+      return res.json(success({ avatarUrl: dataUri }, '头像上传成功'));
     } catch (e) {
       return res.json(error('保存头像失败'));
     }

@@ -4,7 +4,7 @@ const SERVER_BASE = 'http://115.29.149.87:3001';
 
 function resolveAvatarUrl(url) {
   if (!url) return '';
-  if (url.startsWith('http')) return url;
+  if (url.startsWith('data:') || url.startsWith('http')) return url;
   if (url.startsWith('/uploads')) return SERVER_BASE + url;
   return url;
 }
