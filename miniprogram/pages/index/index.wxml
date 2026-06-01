@@ -12,10 +12,11 @@
     <view class="main-card" style="background:{{cardThemes[cardThemeIndex].cardBg}};">
       <view class="main-card-header">
         <view class="main-avatar">
-          <text class="main-avatar-text">{{userInfo.nickname ? userInfo.nickname.substring(0, 2) : '英语学习者'}}</text>
+          <image wx:if="{{userInfo.avatarUrl}}" class="main-avatar-img" src="{{userInfo.avatarUrl}}" mode="aspectFill"></image>
+          <text wx:else class="main-avatar-text">{{userInfo.nickname ? userInfo.nickname.substring(0, 2) : '学'}}</text>
         </view>
         <view class="main-user-info">
-          <text class="main-user-name">英语学习者</text>
+          <text class="main-user-name">{{userInfo.nickname || '英语学习者'}}</text>
           <text class="main-user-meta">Lv.{{userLevel}}  已打卡 {{streakDays}} 天</text>
         </view>
         <view class="main-progress-right">

@@ -104,11 +104,26 @@ Page({
         sourceType: ['album', 'camera'],
         success: (res) => {
           const tempFilePath = res.tempFiles[0].tempFilePath;
-          this.setData({ 'userInfo.avatar': tempFilePath });
-          this.uploadAvatarToServer(tempFilePath);
+          this.cropAndUpload(tempFilePath);
         },
         fail: (err) => {
           console.error('选择头像失败：', err);
+        }
+      });
+    },
+
+    cropAndUpload(src) {
+      wx.cropImage({
+        src,
+        cropScale: '1:1',
+        success: (cropRes) => {
+          this.setData({ 'userInfo.avatar': cropRes.tempFilePath });
+          this.uploadAvatarToServer(cropRes.tempFilePath);
+        },
+        fail: () => {
+          // 裁剪失败时直接用原图
+          this.setData({ 'userInfo.avatar': src });
+          this.uploadAvatarToServer(src);
         }
       });
     },

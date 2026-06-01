@@ -24,25 +24,64 @@
   align-items: center;
 }
 
+.avatar-wrap {
+  position: relative;
+  margin-right: 20rpx;
+}
+
 .avatar {
   width: 96rpx;
   height: 96rpx;
   border-radius: 48rpx;
   background: #D1D1D6;
-  margin-right: 20rpx;
+}
+
+.avatar-edit-tip {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 32rpx;
+  height: 32rpx;
+  border-radius: 16rpx;
+  background: rgba(0,0,0,0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.avatar-edit-icon {
+  font-size: 18rpx;
+  color: #fff;
 }
 
 .user-base {
   display: flex;
   flex-direction: column;
   justify-content: center;
+  flex: 1;
+  min-width: 0;
+}
+
+.user-name-row {
+  display: flex;
+  align-items: center;
+  margin-bottom: 4rpx;
 }
 
 .user-name {
   font-size: 34rpx;
   font-weight: 600;
   color: #2C3E2D;
-  margin-bottom: 4rpx;
+  max-width: 240rpx;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.user-name-edit {
+  font-size: 22rpx;
+  margin-left: 8rpx;
+  opacity: 0.6;
 }
 
 .user-level {

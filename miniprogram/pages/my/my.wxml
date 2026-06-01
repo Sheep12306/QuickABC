@@ -2,9 +2,17 @@
   <!-- 1. 用户信息 -->
   <view class="user-info-section">
     <view class="avatar-info">
-      <image class="avatar" src="{{isLogin ? userInfo.avatarUrl : '/images/avatar.png'}}" mode="aspectFill"></image>
+      <view class="avatar-wrap" bindtap="goToProfile">
+        <image class="avatar" src="{{isLogin ? userInfo.avatarUrl : '/images/avatar.png'}}" mode="aspectFill"></image>
+        <view class="avatar-edit-tip" wx:if="{{isLogin}}">
+          <text class="avatar-edit-icon">✎</text>
+        </view>
+      </view>
       <view class="user-base">
-        <view class="user-name">{{isLogin ? userInfo.nickName : '微信用户'}}</view>
+        <view class="user-name-row" bindtap="goToProfile">
+          <text class="user-name">{{isLogin ? userInfo.nickName : '微信用户'}}</text>
+          <text class="user-name-edit" wx:if="{{isLogin}}" style="color:{{themeColors[themeIdx].accent}};">✎</text>
+        </view>
         <view class="user-level" wx:if="{{isLogin}}" style="color:{{themeColors[themeIdx].accent}};">Lv.{{userLevel}}</view>
         <text wx:if="{{isLogin}}" class="phone-bind-text" bindtap="showPhoneModal">
           {{userPhone || '绑定手机号'}}
@@ -15,7 +23,6 @@
         </view>
       </view>
     </view>
-    <view class="personal-page" bindtap="goToProfile" wx:if="{{isLogin}}">个人主页</view>
   </view>
 
   <!-- 2. 核心数据 三栏 -->

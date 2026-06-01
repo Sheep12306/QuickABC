@@ -1,11 +1,12 @@
 const api = require('../../utils/api');
+const { resolveAvatarUrl } = api;
 
 Page({
     data: {
-      userInfo: { nickname: '英语学习者' },
+      userInfo: { nickname: '', avatarUrl: '' },
       userStatus: '',
-      userLevel: 12,
-      streakDays: 7,
+      userLevel: 1,
+      streakDays: 0,
 
       todayLearned: 0,
       dailyGoal: 30,
@@ -37,6 +38,7 @@ Page({
       const themeIdx = getApp().globalData.cardThemeIndex || 0;
       const userStatus = wx.getStorageSync('userStatus') || '';
       this.setData({ cardThemeIndex: themeIdx, userStatus });
+      this.loadUserInfo();
       this.loadWordBooksFromDB().then(() => {
         this.initCurrentBookFromStorage();
       });
@@ -47,10 +49,22 @@ Page({
       if (themeIdx !== this.data.cardThemeIndex) {
         this.setData({ cardThemeIndex: themeIdx });
       }
+      this.loadUserInfo();
       if (this.data.currentBook.id) {
         this.loadBookLearningData(this.data.currentBook.id);
         this.loadPreviewWords(this.data.currentBook.id);
       }
+    },
+
+    loadUserInfo: function() {
+      const userInfo = wx.getStorageSync('userInfo') || {};
+      const nickname = userInfo.nickName || userInfo.nickname || '';
+      const avatarUrl = resolveAvatarUrl(userInfo.avatarUrl || userInfo.avatar || '');
+      this.setData({
+        userInfo: { nickname, avatarUrl },
+        userLevel: wx.getStorageSync('userLevel') || 1,
+        streakDays: wx.getStorageSync('checkInDays') || 0
+      });
     },
 
     async loadWordBooksFromDB() {

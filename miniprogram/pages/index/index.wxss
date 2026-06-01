@@ -104,6 +104,12 @@
   justify-content: center;
   flex-shrink: 0;
   box-shadow: 0 4rpx 16rpx rgba(67, 160, 71, 0.2);
+  overflow: hidden;
+}
+
+.main-avatar-img {
+  width: 100%;
+  height: 100%;
 }
 
 .main-avatar-text {
