@@ -9,6 +9,7 @@ Page({
       reviewButtonVisible: false,
       isLoading: false,
       bookId: '',
+      todayLearned: 0,
       groupSize: 5,
       themeColors: [
         { accent: '#43A047', light: '#E8F5E9', progressBg: 'rgba(67,160,71,0.12)' },
@@ -77,6 +78,7 @@ Page({
       }
 
       this.setData({ bookId: bookId.toString() });
+      this.loadTodayLearned();
       const themeIdx = getApp().globalData.cardThemeIndex || 0;
       this.setData({ themeIdx: themeIdx });
 
@@ -100,6 +102,17 @@ Page({
       if (themeIdx !== this.data.themeIdx) {
         this.setData({ themeIdx: themeIdx });
       }
+    },
+
+    loadTodayLearned: async function() {
+      const { bookId } = this.data;
+      if (!bookId) return;
+      try {
+        const res = await api.getBookLearningData(bookId);
+        if (res.code === 200) {
+          this.setData({ todayLearned: res.data.todayLearned || 0 });
+        }
+      } catch (e) { /* ignore */ }
     },
 
     playWordAudio: function (word) {
@@ -293,6 +306,7 @@ Page({
       const wordIds = learnedWords.map(word => word.id);
       api.saveLearnedWords(bookId, currentGroup, wordIds).then(res => {
         console.log('saved:', res);
+        this.loadTodayLearned();
       }).catch(err => {
         console.error('save failed:', err);
       });

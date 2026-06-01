@@ -34,6 +34,12 @@
     color: #2C3E2D;
 }
 
+.today-badge {
+    font-size: 24rpx;
+    font-weight: 400;
+    color: #8A9B8B;
+}
+
 .nav-right {
     display: flex;
     align-items: center;

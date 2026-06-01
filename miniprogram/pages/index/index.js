@@ -3,6 +3,7 @@ const api = require('../../utils/api');
 Page({
     data: {
       userInfo: { nickname: '英语学习者' },
+      userStatus: '',
       userLevel: 12,
       streakDays: 7,
 
@@ -34,7 +35,8 @@ Page({
 
     onLoad: function() {
       const themeIdx = getApp().globalData.cardThemeIndex || 0;
-      this.setData({ cardThemeIndex: themeIdx });
+      const userStatus = wx.getStorageSync('userStatus') || '';
+      this.setData({ cardThemeIndex: themeIdx, userStatus });
       this.loadWordBooksFromDB().then(() => {
         this.initCurrentBookFromStorage();
       });
@@ -149,7 +151,7 @@ Page({
 
         let allWords = [];
         results.forEach(res => {
-          if (res.code === 200 && res.data.length > 0) {
+          if (res.code === 200 && res.data && res.data.length > 0) {
             allWords = allWords.concat(res.data);
           }
         });
@@ -295,19 +297,19 @@ Page({
       });
     },
 
-    editNickname: function() {
+    editStatus: function() {
       const that = this;
       wx.showModal({
-        title: '修改昵称',
+        title: '更新状态',
         editable: true,
-        placeholderText: '请输入昵称',
-        content: that.data.userInfo.nickname || '',
+        placeholderText: '说点什么吧...',
+        content: that.data.userStatus || '',
         success: function(res) {
           if (res.confirm && res.content && res.content.trim()) {
-            const nickname = res.content.trim();
-            that.setData({ 'userInfo.nickname': nickname });
-            wx.setStorageSync('userInfo', that.data.userInfo);
-            wx.showToast({ title: '昵称已更新', icon: 'success' });
+            const userStatus = res.content.trim();
+            that.setData({ userStatus });
+            wx.setStorageSync('userStatus', userStatus);
+            wx.showToast({ title: '状态已更新', icon: 'success' });
           }
         }
       });
