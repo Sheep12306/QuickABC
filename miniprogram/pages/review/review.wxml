@@ -30,10 +30,10 @@
       </view>
 
       <view class="action-buttons" wx:if="{{!hasMadeChoice}}">
-        <view class="btn-action btn-dont-know" bindtap="markDontKnow">
+        <view class="btn-action btn-dont-know" bindtap="markDontKnow" hover-class="btn-active">
           <text>不认识</text>
         </view>
-        <view class="btn-action btn-know" bindtap="markKnow" style="background:{{themeColors[themeIdx].accent}};">
+        <view class="btn-action btn-know" bindtap="markKnow" hover-class="btn-active" style="background:{{themeColors[themeIdx].accent}};">
           <text>认识</text>
         </view>
       </view>

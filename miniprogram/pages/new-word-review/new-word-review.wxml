@@ -1,11 +1,7 @@
 <view class="review-container">
   <view class="review-top">
-    <text class="review-title">刷错词</text>
+    <text class="review-title">错词本</text>
     <text class="review-subtitle">{{currentIndex + 1}}/{{totalWords || 0}}</text>
-    <view class="top-spacer"></view>
-    <view class="nav-shuffle" bindtap="shuffleWords">
-      <text class="shuffle-text" style="color:{{themeColors[themeIdx].accent}};">↻</text>
-    </view>
   </view>
 
   <view class="word-area">
@@ -28,23 +24,17 @@
       </view>
 
       <view class="action-buttons" wx:if="{{!hasMadeChoice}}">
-        <view class="btn-action btn-dont-know" bindtap="markDontKnow">
+        <view class="btn-action btn-dont-know" bindtap="markDontKnow" hover-class="btn-active">
           <text>仍不认识</text>
         </view>
-        <view class="btn-action btn-know" bindtap="markKnow" style="background:{{themeColors[themeIdx].accent}};">
+        <view class="btn-action btn-know" bindtap="markKnow" hover-class="btn-active" style="background:{{themeColors[themeIdx].accent}};">
           <text>已掌握</text>
         </view>
       </view>
 
-      <view class="next-btn-area" wx:if="{{hasMadeChoice && (currentIndex < (totalWords || 0) - 1)}}">
+      <view class="next-btn-area" wx:if="{{hasMadeChoice}}">
         <view class="btn-next" bindtap="nextWord" style="background:{{themeColors[themeIdx].accent}};">
-          <text>下一个</text>
-        </view>
-      </view>
-
-      <view class="finish-btn-area" wx:if="{{showCheckInTip}}">
-        <view class="btn-finish" bindtap="handleCheckIn" style="background:{{themeColors[themeIdx].accent}};">
-          <text>完成复习</text>
+          <text>{{currentIndex < totalWords - 1 ? '下一个' : '继续复习'}}</text>
         </view>
       </view>
     </view>
@@ -53,21 +43,22 @@
     </view>
   </view>
 
+  <!-- 统计区 -->
   <view class="stats-section">
     <view class="stats-row">
       <view class="stat-item">
         <text class="stat-value">{{knowCount || 0}}</text>
-        <text class="stat-label">已刷错词</text>
-      </view>
-      <view class="stat-divider"></view>
-      <view class="stat-item">
-        <text class="stat-value">{{dontKnowCount || 0}}</text>
-        <text class="stat-label">仍需复习</text>
+        <text class="stat-label">已掌握</text>
       </view>
       <view class="stat-divider"></view>
       <view class="stat-item">
         <text class="stat-value">{{totalWords || 0}}</text>
-        <text class="stat-label">错词总数</text>
+        <text class="stat-label">需复习</text>
+      </view>
+      <view class="stat-divider"></view>
+      <view class="stat-item" bindtap="shuffleWords">
+        <text class="stat-value" style="color:{{themeColors[themeIdx].accent}};">↻</text>
+        <text class="stat-label">随机复习</text>
       </view>
     </view>
   </view>

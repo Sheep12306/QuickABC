@@ -1,5 +1,31 @@
+const multer = require('multer');
+const path = require('path');
+const fs = require('fs');
 const { User } = require('../../models');
 const { success, error } = require('../utils/response');
+
+const uploadDir = path.join(__dirname, '..', '..', 'uploads');
+
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
+    cb(null, uploadDir);
+  },
+  filename: (req, file, cb) => {
+    const ext = path.extname(file.originalname) || '.jpg';
+    cb(null, `avatar_${req.userId}_${Date.now()}${ext}`);
+  }
+});
+
+const upload = multer({
+  storage,
+  limits: { fileSize: 2 * 1024 * 1024 },
+  fileFilter: (req, file, cb) => {
+    const allowed = ['.jpg', '.jpeg', '.png', '.gif', '.webp'];
+    const ext = path.extname(file.originalname).toLowerCase();
+    cb(null, allowed.includes(ext));
+  }
+}).single('avatar');
 
 // GET /api/user/profile
 async function getProfile(req, res) {
@@ -73,4 +99,23 @@ async function saveStudyData(req, res) {
   }
 }
 
-module.exports = { getProfile, saveProfile, getStudyData, saveStudyData };
+// POST /api/user/avatar
+async function uploadAvatar(req, res) {
+  upload(req, res, async (err) => {
+    if (err) {
+      if (err.code === 'LIMIT_FILE_SIZE') return res.json(error('头像大小不能超过2MB'));
+      return res.json(error('头像上传失败: ' + err.message));
+    }
+    if (!req.file) return res.json(error('请选择头像文件'));
+
+    const avatarUrl = `/uploads/${req.file.filename}`;
+    try {
+      await req.user.update({ avatar: avatarUrl, updatedAt: new Date() });
+      return res.json(success({ avatarUrl }, '头像上传成功'));
+    } catch (e) {
+      return res.json(error('保存头像失败'));
+    }
+  });
+}
+
+module.exports = { getProfile, saveProfile, getStudyData, saveStudyData, uploadAvatar };

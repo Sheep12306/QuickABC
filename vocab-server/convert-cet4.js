@@ -28,14 +28,17 @@ for (const line of lines) {
 
   if (!word || !rest) { skipped++; continue; }
 
-  // 分离词性和释义
-  const dotIdx = rest.indexOf(' ');
+  // 分离词性（取第一个词性缩写，如 adj./adv./n./v. 等）
+  const posMatch = rest.match(/^"?([a-z]+\.)\s*/i);
   let part = '';
   let meaning = rest;
-  if (dotIdx !== -1) {
-    part = rest.slice(0, dotIdx).trim();
-    meaning = rest.slice(dotIdx + 1).trim();
+  if (posMatch) {
+    part = posMatch[1];
+    meaning = rest.slice(posMatch[0].length).trim();
+    if (meaning.startsWith('"')) meaning = meaning.slice(1);
+    if (meaning.endsWith('"')) meaning = meaning.slice(0, -1);
   }
+  if (part.length > 32) part = part.slice(0, 32);
 
   // 标准格式: word\tphonetic\tpart meaning
   outLines.push(`${word}\t${phonetic}\t${part} ${meaning}`);

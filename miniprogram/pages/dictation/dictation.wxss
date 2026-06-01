@@ -62,44 +62,43 @@
   width: 100%;
 }
 
-/* 发音按钮 */
-.audio-btn {
-  width: 120rpx;
-  height: 120rpx;
-  border-radius: 60rpx;
-  background: #E8F5E9;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 4rpx 20rpx rgba(67, 160, 71, 0.12);
-}
-
-.audio-btn:active {
-  transform: scale(0.94);
-  opacity: 0.8;
-}
-
-.audio-triangle {
-  width: 0;
-  height: 0;
-  border-top: 24rpx solid transparent;
-  border-bottom: 24rpx solid transparent;
-  border-left: 36rpx solid #43A047;
-  margin-left: 8rpx;
-}
-
-.audio-label {
-  font-size: 24rpx;
-  color: #8A9B8B;
-  margin-top: 18rpx;
-}
-
 /* 单词展示 */
 .word-section {
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin-top: 56rpx;
+  padding-top: 60rpx;
+}
+
+.dict-phonetic-row {
+  display: flex;
+  align-items: center;
+  gap: 14rpx;
+  margin-bottom: 20rpx;
+}
+
+.audio-btn-sm {
+  width: 48rpx;
+  height: 48rpx;
+  border-radius: 24rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.audio-btn-sm:active {
+  opacity: 0.7;
+  transform: scale(0.92);
+}
+
+.audio-tri-sm {
+  width: 0;
+  height: 0;
+  border-top: 10rpx solid transparent;
+  border-bottom: 10rpx solid transparent;
+  border-left: 16rpx solid #43A047;
+  margin-left: 4rpx;
 }
 
 .dict-word {
@@ -113,7 +112,6 @@
 .dict-phonetic {
   font-size: 32rpx;
   font-weight: 500;
-  margin-bottom: 20rpx;
 }
 
 .dict-meaning {
@@ -171,6 +169,15 @@
 
 .bar-item:active {
   opacity: 0.5;
+}
+
+.bar-icon {
+  font-size: 44rpx;
+  line-height: 1;
+}
+
+.bar-eye.eye-off {
+  opacity: 0.35;
 }
 
 .bar-text {

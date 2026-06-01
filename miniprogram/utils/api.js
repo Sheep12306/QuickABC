@@ -1,5 +1,13 @@
 // 后端 API 地址（部署时改为你的阿里云服务器域名）
 const API_BASE = 'http://115.29.149.87:3001/api';
+const SERVER_BASE = 'http://115.29.149.87:3001';
+
+function resolveAvatarUrl(url) {
+  if (!url) return '';
+  if (url.startsWith('http')) return url;
+  if (url.startsWith('/uploads')) return SERVER_BASE + url;
+  return url;
+}
 
 function request(method, path, data) {
   const token = wx.getStorageSync('token') || '';
@@ -30,6 +38,8 @@ function request(method, path, data) {
 }
 
 module.exports = {
+  resolveAvatarUrl,
+
   // 认证
   login: (code, userInfo) => request('POST', '/auth/login', { code, userInfo }),
   getUserInfo: () => request('GET', '/auth/userinfo'),
@@ -58,6 +68,19 @@ module.exports = {
   // 用户
   getProfile: () => request('GET', '/user/profile'),
   saveProfile: (userInfo) => request('PUT', '/user/profile', { userInfo }),
+  uploadAvatar: (filePath) => new Promise((resolve, reject) => {
+    const token = wx.getStorageSync('token') || '';
+    wx.uploadFile({
+      url: API_BASE + '/user/avatar',
+      filePath,
+      name: 'avatar',
+      header: { 'Authorization': token ? `Bearer ${token}` : '' },
+      success(res) {
+        try { resolve(JSON.parse(res.data)); } catch (e) { reject(new Error('解析失败')); }
+      },
+      fail(err) { reject(err); }
+    });
+  }),
   getStudyData: () => request('GET', '/user/study-data'),
   saveStudyData: (data) => request('PUT', '/user/study-data', data),
 

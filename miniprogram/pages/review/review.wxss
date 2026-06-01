@@ -119,12 +119,13 @@
 
 .answer-area.show {
     opacity: 1;
-    max-height: 160rpx;
 }
 
 .answer-area.hide {
     opacity: 0;
     max-height: 0;
+    overflow: hidden;
+    pointer-events: none;
 }
 
 .meaning-text {
@@ -166,8 +167,9 @@
     font-weight: 600;
 }
 
-.btn-action:active {
+.btn-active {
     transform: scale(0.96);
+    opacity: 0.85;
 }
 
 .btn-dont-know {

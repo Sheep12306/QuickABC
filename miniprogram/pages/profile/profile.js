@@ -1,4 +1,5 @@
 const api = require('../../utils/api');
+const { resolveAvatarUrl } = api;
 
 Page({
     data: {
@@ -48,7 +49,7 @@ Page({
             const gradeIndex = this.data.gradeList.indexOf(cloudUserInfo.grade);
             this.setData({
               userInfo: {
-                avatar: cloudUserInfo.avatar || '',
+                avatar: resolveAvatarUrl(cloudUserInfo.avatar),
                 nickname: cloudUserInfo.nickname || '',
                 grade: cloudUserInfo.grade || '',
                 phone: cloudUserInfo.phone || '',
@@ -71,8 +72,9 @@ Page({
 
     loadLocalUserInfo() {
       const stored = wx.getStorageSync('userInfo') || {};
+      const rawAvatar = stored.avatar || stored.avatarUrl || '';
       const userInfo = {
-        avatar: stored.avatar || stored.avatarUrl || '',
+        avatar: resolveAvatarUrl(rawAvatar),
         nickname: stored.nickname || stored.nickName || '',
         grade: stored.grade || '',
         phone: stored.phone || '',
@@ -103,11 +105,25 @@ Page({
         success: (res) => {
           const tempFilePath = res.tempFiles[0].tempFilePath;
           this.setData({ 'userInfo.avatar': tempFilePath });
+          this.uploadAvatarToServer(tempFilePath);
         },
         fail: (err) => {
           console.error('选择头像失败：', err);
         }
       });
+    },
+
+    async uploadAvatarToServer(filePath) {
+      try {
+        const res = await api.uploadAvatar(filePath);
+        if (res.code === 200 && res.data) {
+          this.setData({ 'userInfo.avatar': res.data.avatarUrl });
+          wx.showToast({ title: '头像已上传', icon: 'success', duration: 1200 });
+        }
+      } catch (err) {
+        console.error('头像上传失败：', err);
+        wx.showToast({ title: '头像上传失败', icon: 'none' });
+      }
     },
 
     onNicknameInput(e) {

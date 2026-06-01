@@ -12,8 +12,8 @@
         <text class="mode-count">共{{item.words.length}}个单词</text>
       </view>
       <view class="mode-card-right">
-        <view class="mode-go-btn" style="background:{{themeColors[themeIdx].accent}};">
-          <text class="mode-go-text">去听写</text>
+        <view class="go-btn" style="background:{{themeColors[themeIdx].accent}};">
+          <text class="go-btn-text">去听写</text>
         </view>
       </view>
     </view>

@@ -1,8 +1,6 @@
 Page({
     data: {
-      // 核心数据
-      reviewList: [],        // 原复习列表
-      wrongWordsList: [],    // 新增：错词列表
+      wrongWordsList: [],
       currentIndex: 0,
       totalWords: 0,
       currentWord: null,
@@ -11,9 +9,6 @@ Page({
       currentMarkedAsKnow: false,
       knowCount: 0,
       dontKnowCount: 0,
-      checkCount: 0,
-      index: 0, // 抗遗忘列表的索引，用于更新打卡次数
-      showCheckInTip: false,
       isWrongWordMode: false,
       themeColors: [
         { accent: '#43A047', light: '#E8F5E9' },
@@ -24,211 +19,102 @@ Page({
       ],
       themeIdx: 0
     },
-  
+
     onLoad(options) {
       this.setData({ themeIdx: getApp().globalData.cardThemeIndex || 0 });
-      const { bookId, date, words, index, isWrongWordMode } = options;
-      this.setData({
-        index: parseInt(index),
-        checkCount: parseInt(options.checkCount) || 0,
-        isWrongWordMode: isWrongWordMode === 'true' // 接收跳转参数，判断是否刷错词
-      });
-  
-      // 核心修复：根据模式加载不同数据源
+      const { bookId, words, isWrongWordMode } = options;
+      this.setData({ isWrongWordMode: isWrongWordMode === 'true' });
+
       if (this.data.isWrongWordMode) {
-        // 刷错词模式：加载本地缓存的错词
         this.loadWrongWordsFromLocal();
-      } else {
-        // 正常复习模式：加载传入的单词列表
-        if (words && words !== '[]') {
-          try {
-            const realWords = JSON.parse(decodeURIComponent(words));
-            const isOnlyOneWord = realWords.length === 1;
-            this.setData({
-              reviewList: realWords,
-              totalWords: realWords.length,
-              currentWord: realWords[0] || null,
-              showCheckInTip: isOnlyOneWord
-            });
-          } catch (e) {
-            this.setData({ reviewList: [], totalWords: 0, currentWord: null });
-          }
-        } else {
-          this.setData({ reviewList: [], totalWords: 0, currentWord: null });
+      } else if (words && words !== '[]') {
+        try {
+          const realWords = JSON.parse(decodeURIComponent(words));
+          this.setData({
+            wrongWordsList: realWords,
+            totalWords: realWords.length,
+            currentWord: realWords[0] || null
+          });
+        } catch (e) {
+          this.setData({ wrongWordsList: [], totalWords: 0, currentWord: null });
         }
       }
     },
-  
-    // 新增：加载本地错词缓存（核心修复）
+
+    // 加载本地错词缓存
     loadWrongWordsFromLocal() {
       try {
-        // 1. 强制读取缓存，兼容空数据
         let wrongWords = wx.getStorageSync('wrong_words') || [];
-        console.log('📥 加载本地错词缓存：', wrongWords);
-        
-        // 2. 强制转为数组，避免格式错误
         if (!Array.isArray(wrongWords)) {
           wrongWords = [];
-          wx.setStorageSync('wrong_words', []); // 重置缓存为数组
+          wx.setStorageSync('wrong_words', []);
         }
-  
-        // 3. 空数据处理
+
         if (wrongWords.length === 0) {
-          this.setData({
-            wrongWordsList: [],
-            totalWords: 0,
-            currentWord: null
-          });
-          wx.showToast({ title: '暂无错词', icon: 'none' });
+          this.setData({ wrongWordsList: [], totalWords: 0, currentWord: null });
           return;
         }
-  
-        // 4. 格式化数据，和保存格式对齐
+
         const formattedList = wrongWords.map(item => ({
-          en: item.en || '未知单词',
+          en: item.en || '',
           phonetic: item.phonetic || '',
           meaning: item.meaning || '',
           part: item.part || ''
         }));
-  
-        // 5. 更新页面数据（复用totalWords/currentIndex等字段）
+
         this.setData({
           wrongWordsList: formattedList,
           totalWords: formattedList.length,
           currentIndex: 0,
-          currentWord: formattedList[0] || null
+          currentWord: formattedList[0] || null,
+          knowCount: 0,
+          dontKnowCount: formattedList.length
         }, () => {
-          console.log('错词加载完成，共', formattedList.length, '个');
           if (formattedList.length > 0) {
-            this.playCurrentAudio(); // 播放第一个单词发音
+            this.playCurrentAudio();
           }
         });
-  
       } catch (err) {
         console.error('加载错词失败：', err);
-        this.setData({
-          wrongWordsList: [],
-          totalWords: 0,
-          currentWord: null
-        });
-        wx.showToast({ title: '加载错词失败', icon: 'none' });
+        this.setData({ wrongWordsList: [], totalWords: 0, currentWord: null });
       }
-    },
-  
-    // 播放当前单词发音
-    playCurrentAudio() {
-      if (this.data.currentWord && this.data.currentWord.en) {
-        this.playWordAudio(this.data.currentWord.en);
-      }
-    },
-  
-    // 播放单词发音（优化版）
-    playWordAudio(word) {
-      if (!word) return;
-  
-      if (this.innerAudioContext) {
-        try {
-          this.innerAudioContext.stop();
-          this.innerAudioContext.destroy();
-        } catch (e) {}
-      }
-      
-      try {
-        const innerAudioContext = wx.createInnerAudioContext();
-        this.innerAudioContext = innerAudioContext;
-        const voiceUrl = `https://dict.youdao.com/dictvoice?audio=${encodeURIComponent(word)}&type=1`;
-        innerAudioContext.src = voiceUrl;
-        innerAudioContext.play();
-        innerAudioContext.onError((err) => {
-          console.error('发音失败:', err);
-          wx.showToast({ title: '发音失败', icon: 'none' });
-        });
-      } catch (err) {
-        wx.showToast({ title: '发音加载失败', icon: 'none' });
-      }
-    },
-  
-    onShow() {
-      this.setData({ themeIdx: getApp().globalData.cardThemeIndex || 0 });
     },
 
-    // 页面卸载时清理
-    onUnload() {
-      if (this.innerAudioContext) {
-        try {
-          this.innerAudioContext.stop();
-          this.innerAudioContext.destroy();
-        } catch (e) {}
-      }
-      if (this.data.answerTimer) {
-        clearTimeout(this.data.answerTimer);
-      }
-    },
-  
-    // 标记为认识（兼容两种模式）
+    // 标记为认识 — 显示答案，2秒后消去该词
     markKnow() {
+      if (!this.data.currentWord || this.data.hasMadeChoice || this._tapLock) return;
+      this._tapLock = true;
+
       this.setData({
         hasMadeChoice: true,
         currentMarkedAsKnow: true,
         showAnswer: true,
-        knowCount: this.data.knowCount + 1
+        knowCount: this.data.knowCount + 1,
+        dontKnowCount: Math.max(0, this.data.dontKnowCount - 1)
       }, () => {
         this.playCurrentAudio();
-        
-        // 刷错词模式：标记认识后移除该错词
         if (this.data.isWrongWordMode) {
-          this.removeWrongWord();
-        } else {
-          this.checkShowToastTip();
+          this.setData({
+            answerTimer: setTimeout(() => {
+              this.removeWrongWord();
+            }, 2000)
+          });
         }
       });
     },
-  
-    // 新增：移除已掌握的错词（刷错词模式专用）
-    removeWrongWord() {
-      const { wrongWordsList, currentIndex, currentWord } = this.data;
-      if (!currentWord || wrongWordsList.length === 0) return;
-  
-      // 1. 过滤掉当前单词
-      const newWrongList = wrongWordsList.filter((_, idx) => idx !== currentIndex);
-      // 2. 更新本地缓存
-      wx.setStorageSync('wrong_words', newWrongList);
-      // 3. 更新页面数据
-      this.setData({
-        wrongWordsList: newWrongList,
-        totalWords: newWrongList.length,
-        currentIndex: 0,
-        currentWord: newWrongList[0] || null,
-        hasMadeChoice: false,
-        showAnswer: false
-      }, () => {
-        console.log('错词已移除，剩余：', newWrongList.length);
-        if (newWrongList.length > 0) {
-          this.playCurrentAudio();
-        } else {
-          wx.showToast({ title: '所有错词已掌握！', icon: 'success' });
-        }
-      });
-    },
-  
-    // 标记为不认识（确保错词保存）
-    markDontKnow: function() {
-      if (!this.data.currentWord || this.data.hasMadeChoice) return;
-      
-      const currentWord = this.data.currentWord;
-      this.playCurrentAudio();
-      
+
+    // 标记为不认识 — 保留该词，2秒后移到下一个
+    markDontKnow() {
+      if (!this.data.currentWord || this.data.hasMadeChoice || this._tapLock) return;
+      this._tapLock = true;
+
       this.setData({
         showAnswer: true,
         hasMadeChoice: true,
         currentMarkedAsKnow: false,
         dontKnowCount: this.data.dontKnowCount + 1
       }, () => {
-        // 只有非刷错词模式才保存错词（避免刷错词时重复保存）
-        if (!this.data.isWrongWordMode) {
-          this.saveWrongWordToLocal(currentWord);
-        }
-        
+        this.playCurrentAudio();
         this.setData({
           answerTimer: setTimeout(() => {
             this.nextWord();
@@ -236,156 +122,193 @@ Page({
         });
       });
     },
-  
-    // 保存错词到本地（强制保存，无去重）
-    saveWrongWordToLocal: function(word) {
-      try {
-        if (!word || !word.en) {
-          console.warn('单词数据异常：', word);
-          return;
-        }
-        
-        // 1. 强制读取并初始化缓存
-        let wrongWords = wx.getStorageSync('wrong_words') || [];
-        if (!Array.isArray(wrongWords)) wrongWords = [];
-        
-        // 2. 强制添加（注释去重，先验证）
-        const formattedWord = {
-          en: word.en.trim(),
-          phonetic: word.phonetic || '',
-          meaning: word.meaning || '',
-          part: word.part || ''
-        };
-        wrongWords.push(formattedWord);
-        
-        // 3. 强制写入缓存
-        wx.setStorageSync('wrong_words', wrongWords);
-        console.log('错词保存成功，缓存数据：', wx.getStorageSync('wrong_words'));
-        wx.showToast({ title: '错词已记录', icon: 'success' });
-        
-      } catch (err) {
-        console.error('保存错词失败：', err);
-        wx.showToast({ title: '错词保存失败', icon: 'none' });
+
+    // 更正为不认识：撤回认识，错词模式加回列表
+    correctToDontKnow() {
+      if (!this.data.currentWord) return;
+      if (this.data.answerTimer) {
+        clearTimeout(this.data.answerTimer);
+        this.setData({ answerTimer: null });
+      }
+      // 错词模式：把刚移除的词加回去
+      if (this.data.isWrongWordMode) {
+        const word = this.data.currentWord;
+        const newList = [word, ...this.data.wrongWordsList];
+        wx.setStorageSync('wrong_words', newList);
+        this.setData({
+          wrongWordsList: newList,
+          totalWords: newList.length,
+          currentMarkedAsKnow: false,
+          knowCount: Math.max(0, this.data.knowCount - 1)
+        });
+      } else {
+        this.setData({
+          currentMarkedAsKnow: false,
+          knowCount: Math.max(0, this.data.knowCount - 1)
+        });
       }
     },
-  
-    // 下一个单词（兼容两种模式）
-    nextWord() {
-      const nextIndex = this.data.currentIndex + 1;
-      const isLastWord = nextIndex >= this.data.totalWords;
-  
-      if (isLastWord) {
-        this.setData({ showCheckInTip: true });
+
+    // 移除已掌握的错词
+    removeWrongWord() {
+      if (this.data.answerTimer) {
+        clearTimeout(this.data.answerTimer);
+        this.setData({ answerTimer: null });
+      }
+
+      const { wrongWordsList, currentIndex, currentWord } = this.data;
+      if (!currentWord || wrongWordsList.length === 0) return;
+
+      const newWrongList = wrongWordsList.filter((_, idx) => idx !== currentIndex);
+      wx.setStorageSync('wrong_words', newWrongList);
+
+      if (newWrongList.length === 0) {
+        this.setData({
+          wrongWordsList: [],
+          totalWords: 0,
+          currentWord: null,
+          hasMadeChoice: false,
+          showAnswer: false,
+          currentMarkedAsKnow: false,
+          dontKnowCount: 0
+        });
+        this._tapLock = false;
+        wx.showToast({ title: '所有错词已掌握！', icon: 'success', duration: 2000 });
+        setTimeout(() => wx.navigateBack(), 2000);
         return;
       }
-  
-      // 根据模式选择数据源
-      const newWord = this.data.isWrongWordMode 
-        ? this.data.wrongWordsList[nextIndex] 
-        : this.data.reviewList[nextIndex];
-  
+
+      const newIndex = currentIndex >= newWrongList.length ? newWrongList.length - 1 : currentIndex;
+
       this.setData({
-        currentIndex: nextIndex,
-        currentWord: newWord,
+        wrongWordsList: newWrongList,
+        totalWords: newWrongList.length,
+        currentIndex: newIndex,
+        currentWord: newWrongList[newIndex] || null,
         hasMadeChoice: false,
         showAnswer: false,
         currentMarkedAsKnow: false,
-        showCheckInTip: false
+        dontKnowCount: Math.max(0, this.data.dontKnowCount - 1)
+      });
+      this._tapLock = false;
+    },
+
+    // 下一个单词
+    nextWord() {
+      if (this.data.answerTimer) {
+        clearTimeout(this.data.answerTimer);
+        this.setData({ answerTimer: null });
+      }
+
+      const nextIndex = this.data.currentIndex + 1;
+      const isLastWord = nextIndex >= this.data.totalWords;
+
+      if (isLastWord) {
+        if (this.data.isWrongWordMode && this.data.totalWords > 0) {
+          wx.showToast({ title: '已过一轮，继续加油！', icon: 'none', duration: 1500 });
+          this.setData({
+            currentIndex: 0,
+            currentWord: this.data.wrongWordsList[0] || null,
+            hasMadeChoice: false,
+            showAnswer: false,
+            currentMarkedAsKnow: false
+          });
+          this._tapLock = false;
+          return;
+        }
+        wx.showToast({ title: '已完成', icon: 'none' });
+        return;
+      }
+
+      const newWord = this.data.wrongWordsList[nextIndex];
+      this._tapLock = false;
+      this.setData({
+        currentIndex: nextIndex,
+        currentWord: newWord || null,
+        hasMadeChoice: false,
+        showAnswer: false,
+        currentMarkedAsKnow: false
       });
     },
-  
-    // 上一个单词（兼容两种模式）
+
+    // 上一个单词
     prevWord() {
       const prevIndex = this.data.currentIndex - 1;
       if (prevIndex < 0) return;
-  
-      // 根据模式选择数据源
-      const newWord = this.data.isWrongWordMode 
-        ? this.data.wrongWordsList[prevIndex] 
-        : this.data.reviewList[prevIndex];
-  
       this.setData({
         currentIndex: prevIndex,
-        currentWord: newWord,
+        currentWord: this.data.wrongWordsList[prevIndex] || null,
         hasMadeChoice: false,
         showAnswer: false,
-        currentMarkedAsKnow: false,
-        showCheckInTip: false
+        currentMarkedAsKnow: false
       });
     },
-  
-    // 打乱单词顺序（兼容两种模式）
+
+    // 打乱顺序，从第一个开始复习
     shuffleWords() {
-      // 根据模式选择数据源
-      const originalList = this.data.isWrongWordMode 
-        ? [...this.data.wrongWordsList] 
-        : [...this.data.reviewList];
-  
-      // 打乱逻辑
-      for (let i = originalList.length - 1; i > 0; i--) {
+      if (this.data.totalWords === 0) return;
+      const list = [...this.data.wrongWordsList];
+      for (let i = list.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
-        [originalList[i], originalList[j]] = [originalList[j], originalList[i]];
+        [list[i], list[j]] = [list[j], list[i]];
       }
-  
-      // 根据模式更新数据源
-      const updateData = {
+      if (this.data.answerTimer) {
+        clearTimeout(this.data.answerTimer);
+        this.setData({ answerTimer: null });
+      }
+      this._tapLock = false;
+      this.setData({
+        wrongWordsList: list,
         currentIndex: 0,
-        currentWord: originalList[0] || null,
+        currentWord: list[0] || null,
         hasMadeChoice: false,
         showAnswer: false,
-        showCheckInTip: false
-      };
-  
-      if (this.data.isWrongWordMode) {
-        updateData.wrongWordsList = originalList;
-      } else {
-        updateData.reviewList = originalList;
-      }
-  
-      this.setData(updateData);
+        currentMarkedAsKnow: false
+      });
+      wx.showToast({ title: '已打乱复习顺序', icon: 'success', duration: 1200 });
     },
-  
-    // 打卡逻辑（仅复习模式生效）
-    handleCheckIn() {
-      // 刷错词模式不执行打卡
-      if (this.data.isWrongWordMode) {
-        wx.showToast({ title: '刷错词模式无需打卡', icon: 'none' });
-        return;
-      }
-  
-      const { currentIndex, totalWords, hasMadeChoice } = this.data;
-      const isLastWord = totalWords > 0 && currentIndex === totalWords - 1;
-      const isAllReviewed = isLastWord && hasMadeChoice;
-  
-      if (!isAllReviewed) {
-        wx.showToast({ title: '请复习完所有单词', icon: 'none' });
-        return;
-      }
-  
-      const newCheckCount = this.data.checkCount + 1;
-      this.setData({ checkCount: newCheckCount });
-  
-      const pages = getCurrentPages();
-      const prevPage = pages[pages.length - 2];
-      if (prevPage && prevPage.updateCheckCount) {
-        prevPage.updateCheckCount(this.data.index);
-      }
-  
-      wx.showToast({ title: '打卡成功！', icon: 'success' });
-      setTimeout(() => {
-        wx.navigateBack();
-      }, 1500);
-    },
-  
-    // 提示检查
-    checkShowToastTip() {
-      const { currentIndex, totalWords, hasMadeChoice } = this.data;
-      if (totalWords > 0 && currentIndex === totalWords - 1 && hasMadeChoice) {
-        wx.showToast({ title: '太棒了，快去打卡吧', icon: 'none', duration: 2000 });
+
+    // 播放当前单词发音
+    playCurrentAudio() {
+      if (this.data.currentWord && this.data.currentWord.en) {
+        this.playWordAudio(this.data.currentWord.en);
       }
     },
-  
-    // 返回
+
+    // 播放单词发音
+    playWordAudio(word) {
+      if (!word) return;
+      if (this.innerAudioContext) {
+        try { this.innerAudioContext.stop(); } catch (e) {}
+        try { this.innerAudioContext.destroy(); } catch (e) {}
+      }
+      try {
+        const innerAudioContext = wx.createInnerAudioContext();
+        this.innerAudioContext = innerAudioContext;
+        innerAudioContext.src = `https://dict.youdao.com/dictvoice?audio=${encodeURIComponent(word)}&type=1`;
+        innerAudioContext.play();
+        innerAudioContext.onError((err) => {
+          console.error('发音失败:', err);
+        });
+      } catch (err) {
+        console.error('发音加载失败:', err);
+      }
+    },
+
+    onShow() {
+      this.setData({ themeIdx: getApp().globalData.cardThemeIndex || 0 });
+    },
+
+    onUnload() {
+      if (this.innerAudioContext) {
+        try { this.innerAudioContext.stop(); } catch (e) {}
+        try { this.innerAudioContext.destroy(); } catch (e) {}
+      }
+      if (this.data.answerTimer) {
+        clearTimeout(this.data.answerTimer);
+      }
+    },
+
     goBack() {
       wx.navigateBack();
     }

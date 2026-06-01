@@ -1,7 +1,7 @@
 <view class="profile-container" style="background:{{cardThemes[themeIdx].bg}};">
   <!-- 头像区 -->
   <view class="avatar-card" bindtap="chooseAvatar">
-    <image class="avatar-img" src="{{userInfo.avatar || '/images/default-avatar.png'}}" mode="aspectFill"></image>
+    <image class="avatar-img" src="{{userInfo.avatar || '/images/avatar.png'}}" mode="aspectFill"></image>
     <view class="avatar-hint">
       <view class="avatar-hint-icon" style="background:{{themeColors[themeIdx].accent}};">
         <text class="avatar-plus">+</text>

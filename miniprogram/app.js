@@ -35,7 +35,9 @@ App({
             if (user) {
               this.globalData.userInfo = user;
               wx.setStorageSync('userInfo', user);
-              wx.setStorageSync('openid', user.openid); // 兼容旧页面
+              wx.setStorageSync('openid', user.openid);
+              wx.setStorageSync('userId', user.id);
+              wx.setStorageSync('hasWechatLogin', true);
               console.log('用户信息：', user.nickname);
             }
           }

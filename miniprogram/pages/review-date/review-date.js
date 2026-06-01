@@ -171,6 +171,7 @@ Page({
         const formattedWord = {
           en: word.en || '',
           phonetic: word.phonetic || '',
+          part: word.part || '',
           meaning: word.meaning || ''
         };
         // 5. 保存到本地缓存

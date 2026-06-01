@@ -203,45 +203,71 @@ Page({
       this.setData({ mixTitle });
     },
   
-    // 新增：一键混组复习（合并当前组前所有组单词）
+    // 一键混组复习：合并今天学过的所有组
     oneClickMixReview: function() {
-      const { todayIndex, learnedGroupList, bookId, originGroupWords } = this.data;
-      const prevGroups = learnedGroupList.filter(g => g < todayIndex);
-  
-      if (prevGroups.length === 0) {
-        wx.showToast({ title: '暂无前面组的单词可混组', icon: 'none' });
+      const { learnedGroupList, bookId, originGroupWords } = this.data;
+      const sortedGroups = [...learnedGroupList].sort((a, b) => a - b);
+
+      if (sortedGroups.length <= 1) {
+        wx.showToast({ title: '今天只学了一组，无需混组', icon: 'none' });
         return;
       }
-  
-      let mixWords = [];
-      prevGroups.forEach(g => {
-        const storageKey = `learnedWords_${bookId}_${g}`;
-        const groupWords = wx.getStorageSync(storageKey) || [];
-        groupWords.forEach(word => {
-          if (!mixWords.some(w => w.id === word.id) && !originGroupWords.some(w => w.id === word.id)) {
-            mixWords.push(word);
+
+      const groupNames = sortedGroups.join('、');
+      wx.showModal({
+        title: '混组复习',
+        content: `将合并今天学过的 ${sortedGroups.length} 组：\n第 ${groupNames} 组\n\n单词按组顺序排列`,
+        success: (res) => {
+          if (!res.confirm) return;
+
+          // 从缓存组装所有单词，重置状态
+          let allWords = [];
+          const seenIds = new Set();
+          sortedGroups.forEach(g => {
+            const groupWords = wx.getStorageSync(`learnedWords_${bookId}_${g}`) || [];
+            groupWords.forEach(word => {
+              if (!seenIds.has(word.id)) {
+                seenIds.add(word.id);
+                allWords.push({
+                  id: word.id || word._id,
+                  en: word.en,
+                  phonetic: word.phonetic || '',
+                  part: word.part || '',
+                  meaning: word.meaning || '',
+                  consecutiveKnowCount: 0,
+                  lastStatus: 'unknown',
+                  belongGroup: g
+                });
+              }
+            });
+          });
+
+          // 清理旧定时器
+          if (this.data.answerTimer) {
+            clearTimeout(this.data.answerTimer);
           }
-        });
-      });
-  
-      const finalWords = [...originGroupWords, ...mixWords];
-      this.setData({
-        reviewWords: finalWords,
-        allWords: finalWords,
-        totalWords: finalWords.length,
-        currentWord: finalWords[0] || null,
-        currentIndex: 0,
-        mixGroupCount: prevGroups.length + 1,
-        mixReviewTotal: finalWords.length, // 混组按钮数字=总词数
-        knowCount: 0, // 混组后已掌握重置为0
-        dontKnowCount: finalWords.length // 混组后需复习=总词数
-      }, () => {
-        this.calcStats();
-        this.updateMixTitle();
-        wx.showToast({ 
-          title: `已混组${prevGroups.length + 1}组（共${finalWords.length}个单词）`, 
-          icon: 'success' 
-        });
+
+          this._tapLock = false;
+          this.setData({
+            reviewWords: allWords,
+            allWords: allWords,
+            originGroupWords: allWords,
+            totalWords: allWords.length,
+            currentWord: allWords[0] || null,
+            currentIndex: 0,
+            showAnswer: false,
+            hasMadeChoice: false,
+            currentMarkedAsKnow: false,
+            answerTimer: null,
+            tempUnknowWords: [],
+            mixGroupCount: sortedGroups.length,
+            mixReviewTotal: allWords.length,
+            knowCount: 0,
+            dontKnowCount: allWords.length
+          }, () => {
+            this.updateMixTitle();
+          });
+        }
       });
     },
     
@@ -292,14 +318,16 @@ Page({
   
     // 标记为认识：已掌握+1，需复习-1
     markKnow: function() {
-      if (!this.data.currentWord || this.data.hasMadeChoice) return;
-      this.playCurrentAudio();
+      if (!this.data.currentWord || this.data.hasMadeChoice || this._tapLock) return;
+      this._tapLock = true;
       this.setData({
         showAnswer: true,
         hasMadeChoice: true,
         currentMarkedAsKnow: true,
-        knowCount: this.data.knowCount + 1, // 已掌握+1
-        dontKnowCount: Math.max(0, this.data.dontKnowCount - 1) // 需复习-1（最小为0）
+        knowCount: this.data.knowCount + 1,
+        dontKnowCount: Math.max(0, this.data.dontKnowCount - 1)
+      }, () => {
+        this.playCurrentAudio();
       });
       this.updateWordStatus('know');
       this.setData({
@@ -310,34 +338,33 @@ Page({
     },
   
     // 标记为不认识（追加到末尾必复习）：需复习+1
-  // 标记为不认识（追加到末尾必复习）：需复习+1
+  // 标记为不认识（追加到末尾必复习）
   markDontKnow: function() {
-    if (!this.data.currentWord || this.data.hasMadeChoice) return;
-    
-    const currentWord = this.data.currentWord; // 保存当前单词，避免异步问题
-    this.playCurrentAudio();
-    
+    if (!this.data.currentWord || this.data.hasMadeChoice || this._tapLock) return;
+
+    const currentWord = this.data.currentWord;
+    this._tapLock = true;
+
     this.setData({
       showAnswer: true,
       hasMadeChoice: true,
-      currentMarkedAsKnow: false,
-      dontKnowCount: this.data.dontKnowCount + 1 // 需复习+1
+      currentMarkedAsKnow: false
+    }, () => {
+      this.playCurrentAudio();
     });
-    
+
     this.updateWordStatus('dontKnow');
     this.addToTempUnknowWords(currentWord);
     this.addToNewWords(currentWord);
-  
-    // ===== 核心新增：本地缓存记录错词（优先执行，不受网络/云函数影响）=====
+
     this.saveWrongWordToLocal(currentWord);
-    
-    // 原有云函数上传逻辑（保留，作为兜底备份）
+
     api.addWrongWord(currentWord).then(res => {
       console.log('wrong word saved:', res);
     }).catch(err => {
       console.error('wrong word save failed:', err);
     });
-    
+
     this.setData({
       answerTimer: setTimeout(() => {
         this.nextWord();
@@ -368,8 +395,9 @@ Page({
       const formattedWord = {
         en: word.en || '',
         phonetic: word.phonetic || '',
+        part: word.part || '',
         meaning: word.meaning || '',
-        addTime: new Date().getTime() // 可选：记录添加时间，方便后续排序
+        addTime: new Date().getTime()
       };
       // 5. 保存到本地缓存
       wrongWords.push(formattedWord);
@@ -390,7 +418,7 @@ Page({
       }
     },
   
-    // 纠正为不认识
+    // 纠正为不认识：撤回"认识"计数并重新加入待复习
     correctToDontKnow: function() {
       if (!this.data.currentWord) return;
       if (this.data.answerTimer) {
@@ -400,9 +428,11 @@ Page({
       this.updateWordStatus('dontKnow');
       this.addToTempUnknowWords(this.data.currentWord);
       this.addToNewWords(this.data.currentWord);
-      this.setData({ 
+      this.saveWrongWordToLocal(this.data.currentWord);
+      this.setData({
         currentMarkedAsKnow: false,
-        dontKnowCount: this.data.dontKnowCount + 1 // 纠正时需复习+1
+        knowCount: Math.max(0, this.data.knowCount - 1),
+        dontKnowCount: this.data.dontKnowCount + 1
       });
     },
   
@@ -444,9 +474,7 @@ Page({
         const newReviewWords = [...reviewWords, ...tempUnknowWords];
         this.setData({
           reviewWords: newReviewWords,
-          tempUnknowWords: [],
-          totalWords: newReviewWords.length,
-          dontKnowCount: this.data.dontKnowCount + tempUnknowWords.length // 追加答错单词时需复习+对应数量
+          tempUnknowWords: []
         }, () => {
           this.goToWord(currentIndex + 1);
         });
@@ -458,6 +486,7 @@ Page({
   
     // 跳转到指定单词
     goToWord: function(index) {
+      this._tapLock = false;
       this.setData({
         currentWord: this.data.reviewWords[index],
         currentIndex: index,
@@ -539,8 +568,9 @@ Page({
   // 页面卸载时销毁音频实例（避免内存泄漏）
   onUnload: function() {
     if (this.innerAudioContext) {
-      this.innerAudioContext.stop();
-      this.innerAudioContext.destroy();
+      try { this.innerAudioContext.stop(); } catch (e) {}
+      try { this.innerAudioContext.destroy(); } catch (e) {}
+      this.innerAudioContext = null;
     }
   },
   

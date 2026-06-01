@@ -3,8 +3,8 @@
 
     <!-- 顶部问候区 -->
     <view class="greeting-section">
-      <view class="greeting-bubble" bindtap="editNickname" style="background:{{cardThemes[cardThemeIndex].tagBg}};">
-        <text class="greeting-bubble-text" style="color:{{cardThemes[cardThemeIndex].accent}};">嗨，{{userInfo.nickname || '英语学习者'}}</text>
+      <view class="greeting-bubble" bindtap="editStatus" style="background:{{cardThemes[cardThemeIndex].tagBg}};">
+        <text class="greeting-bubble-text" style="color:{{cardThemes[cardThemeIndex].accent}};">{{userStatus || '今天也要加油哦 ~'}}</text>
       </view>
     </view>
 

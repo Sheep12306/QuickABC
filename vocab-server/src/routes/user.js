@@ -5,6 +5,7 @@ const router = Router();
 
 router.get('/profile', ctrl.getProfile);
 router.put('/profile', ctrl.saveProfile);
+router.post('/avatar', ctrl.uploadAvatar);
 router.get('/study-data', ctrl.getStudyData);
 router.put('/study-data', ctrl.saveStudyData);
 

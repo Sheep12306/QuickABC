@@ -1,4 +1,5 @@
 const api = require('../../utils/api');
+const { resolveAvatarUrl } = api;
 
 Page({
     data: {
@@ -87,6 +88,7 @@ Page({
               const masked = phone.replace(/(\d{3})\d{4}(\d{4})/, '$1****$2');
               this.setData({ userPhone: masked });
               wx.setStorageSync('userPhone', phone);
+              this.savePhoneToServer(phone);
               wx.showToast({ title: '绑定成功', icon: 'success' });
             } else {
               wx.showToast({ title: '手机号格式不正确', icon: 'none' });
@@ -94,6 +96,18 @@ Page({
           }
         }
       });
+    },
+
+    async savePhoneToServer(phone) {
+      const token = wx.getStorageSync('token');
+      if (!token) return;
+      try {
+        const userInfo = wx.getStorageSync('userInfo') || {};
+        userInfo.phone = phone;
+        await api.saveProfile(userInfo);
+      } catch (err) {
+        console.error('手机号同步失败：', err);
+      }
     },
 
     async syncDataFromServer() {
@@ -108,9 +122,13 @@ Page({
             isLogin: true,
             userId: userProfile.id,
             userInfo: {
-              avatarUrl: userProfile.avatar || this.data.userInfo.avatarUrl,
-              nickName: userProfile.nickname || this.data.userInfo.nickName
-            }
+              avatarUrl: resolveAvatarUrl(userProfile.avatar) || this.data.userInfo.avatarUrl,
+              nickName: userProfile.nickname || this.data.userInfo.nickName,
+              phone: userProfile.phone || '',
+              grade: userProfile.grade || '',
+              school: userProfile.school || ''
+            },
+            userPhone: userProfile.phone || this.data.userPhone
           });
           wx.setStorageSync('hasWechatLogin', true);
           wx.setStorageSync('userId', userProfile.id);
@@ -125,13 +143,15 @@ Page({
 
     checkLocalLoginStatus() {
       const hasLogin = wx.getStorageSync('hasWechatLogin');
+      const token = wx.getStorageSync('token');
       const userInfo = wx.getStorageSync('userInfo') || {};
       const userId = wx.getStorageSync('userId') || '';
+      const rawAvatar = userInfo.avatarUrl || userInfo.avatar || '';
       this.setData({
-        isLogin: hasLogin,
+        isLogin: !!(hasLogin || token),
         userId: userId,
         userInfo: {
-          avatarUrl: userInfo.avatarUrl || userInfo.avatar || '',
+          avatarUrl: resolveAvatarUrl(rawAvatar),
           nickName: userInfo.nickName || userInfo.nickname || ''
         },
         userPhone: wx.getStorageSync('userPhone') || '',
@@ -163,6 +183,7 @@ Page({
         if (!loginRes.code) throw new Error('login code failed');
 
         const newUserInfo = userRes.userInfo;
+        newUserInfo.avatarUrl = resolveAvatarUrl(newUserInfo.avatarUrl);
         this.setData({ userInfo: newUserInfo });
         wx.setStorageSync('userInfo', newUserInfo);
 
@@ -202,10 +223,13 @@ Page({
         if (res.code === 200 && res.data) {
           const profile = res.data;
           const userInfo = {
-            avatarUrl: profile.avatar || this.data.userInfo.avatarUrl,
-            nickName: profile.nickname || this.data.userInfo.nickName
+            avatarUrl: resolveAvatarUrl(profile.avatar) || this.data.userInfo.avatarUrl,
+            nickName: profile.nickname || this.data.userInfo.nickName,
+            phone: profile.phone || '',
+            grade: profile.grade || '',
+            school: profile.school || ''
           };
-          this.setData({ userInfo });
+          this.setData({ userInfo, userPhone: profile.phone || this.data.userPhone });
           wx.setStorageSync('userInfo', userInfo);
           return profile;
         }

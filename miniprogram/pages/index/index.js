@@ -273,7 +273,7 @@ Page({
         return;
       }
       wx.navigateTo({
-        url: `/pages/new-word-review/new-word-review?bookId=${this.data.currentBook.id}`
+        url: `/pages/new-word-review/new-word-review?isWrongWordMode=true&bookId=${this.data.currentBook.id}`
       });
     },
 

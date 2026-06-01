@@ -17,16 +17,15 @@
   <!-- 主内容区 -->
   <view class="dictation-main">
     <view class="dictation-card" wx:if="{{currentWord.en}}">
-      <!-- 发音按钮 -->
-      <view class="audio-btn" bindtap="playCurrentAudio" style="background:{{themeColors[themeIdx].light}};">
-        <view class="audio-triangle" style="border-left-color:{{themeColors[themeIdx].accent}};"></view>
-      </view>
-      <text class="audio-label">点击播放发音</text>
-
       <!-- 单词展示区 -->
       <view class="word-section" wx:if="{{wordsVisible}}">
         <text class="dict-word">{{currentWord.en}}</text>
-        <text class="dict-phonetic" style="color:{{themeColors[themeIdx].accent}};">[{{currentWord.phonetic}}]</text>
+        <view class="dict-phonetic-row">
+          <text class="dict-phonetic" style="color:{{themeColors[themeIdx].accent}};">[{{currentWord.phonetic}}]</text>
+          <view class="audio-btn-sm" bindtap="playCurrentAudio" style="background:{{themeColors[themeIdx].light}};">
+            <view class="audio-tri-sm" style="border-left-color:{{themeColors[themeIdx].accent}};"></view>
+          </view>
+        </view>
         <text class="dict-meaning">{{currentWord.part}} {{currentWord.meaning}}</text>
       </view>
       <view class="hidden-section" wx:else>
@@ -42,7 +41,7 @@
   <!-- 底部操作栏 -->
   <view class="dictation-bar">
     <view class="bar-item" bindtap="showWordList">
-      <text class="bar-text">列表</text>
+      <text class="bar-icon" style="color:{{themeColors[themeIdx].accent}};">☰</text>
     </view>
     <view class="bar-item" bindtap="prevWord">
       <view class="skip-icon skip-prev">
@@ -65,7 +64,7 @@
       </view>
     </view>
     <view class="bar-item" bindtap="toggleVisible">
-      <text class="bar-text">{{wordsVisible ? '隐藏' : '显示'}}</text>
+      <text class="bar-icon bar-eye {{wordsVisible ? '' : 'eye-off'}}" style="color:{{themeColors[themeIdx].accent}};">👁</text>
     </view>
   </view>
 
