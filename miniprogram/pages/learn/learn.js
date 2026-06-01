@@ -80,8 +80,14 @@ Page({
       const themeIdx = getApp().globalData.cardThemeIndex || 0;
       this.setData({ themeIdx: themeIdx });
 
-      // 优先从服务端恢复学习进度，无记录时从本地恢复
-      this.restoreFromCloud();
+      // index 预览传入的起始分组优先，否则从服务端恢复进度
+      const startGroup = parseInt(options.startGroup) || 0;
+      if (startGroup > 0) {
+        this.setData({ currentGroup: startGroup });
+        this.loadWords(startGroup);
+      } else {
+        this.restoreFromCloud();
+      }
 
       this.innerAudioContext = wx.createInnerAudioContext();
       this.innerAudioContext.onPlay(() => console.log('audio play'));

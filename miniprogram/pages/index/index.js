@@ -119,7 +119,7 @@ Page({
       }
     },
 
-    // 加载预览单词（从当前学习进度所在分组取词）
+    // 加载预览单词（当前组 ±1，共三组 15 词）
     async loadPreviewWords(bookId) {
       try {
         // 优先读本地（learn 页 onHide 同步写入的，无延迟）
@@ -137,15 +137,38 @@ Page({
           } catch (e) { /* ignore */ }
         }
 
-        const res = await api.getWordsByBookId({ bookId, groupNum: currentGroup, groupSize: 15 });
-        if (res.code === 200 && res.data.length > 0) {
-          const words = res.data.map(w => ({
+        // 加载当前组 + 前一 + 后一，每组 5 词（与 learn 页 groupSize=5 一致）
+        const groupNums = [];
+        if (currentGroup > 1) groupNums.push(currentGroup - 1);
+        groupNums.push(currentGroup);
+        groupNums.push(currentGroup + 1);
+
+        const results = await Promise.all(
+          groupNums.map(g => api.getWordsByBookId({ bookId, groupNum: g, groupSize: 5 }))
+        );
+
+        let allWords = [];
+        results.forEach(res => {
+          if (res.code === 200 && res.data.length > 0) {
+            allWords = allWords.concat(res.data);
+          }
+        });
+
+        if (allWords.length > 0) {
+          const words = allWords.map(w => ({
             word: w.word,
             phonetic: w.phonetic || '',
             part: w.part || '',
             meaning: w.meaning && w.meaning.length > 20 ? w.meaning.slice(0, 20) + '...' : (w.meaning || ''),
           }));
-          this.setData({ previewWords: words, previewStart: 0 });
+          // 定位到当前组的第一个词（前两组各 5 词后的位置）
+          const baseGroup = currentGroup > 1 ? currentGroup - 1 : 1;
+          const previewStart = currentGroup > 1 ? 5 : 0;
+          this.setData({
+            previewWords: words,
+            previewStart,
+            _previewBaseGroup: baseGroup
+          });
           this.updateVisibleWords();
         }
       } catch (err) {
@@ -227,8 +250,13 @@ Page({
         return;
       }
 
+      // 高亮词所在分组 = baseGroup + floor(highlightedIndex / 5)
+      const highlightedIndex = this.data.previewStart + 1;
+      const baseGroup = this.data._previewBaseGroup || 1;
+      const startGroup = baseGroup + Math.floor(highlightedIndex / 5);
+
       wx.navigateTo({
-        url: `/pages/learn/learn?bookId=${currentBook.id}&mode=normal`
+        url: `/pages/learn/learn?bookId=${currentBook.id}&startGroup=${startGroup}&mode=normal`
       });
     },
 
