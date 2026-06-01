@@ -18,4 +18,28 @@ async function addWrongWord(req, res) {
   }
 }
 
-module.exports = { addWrongWord };
+// GET /api/wrong-words
+async function getWrongWords(req, res) {
+  try {
+    const words = await WrongWord.findAll({
+      where: { userId: req.userId },
+      order: [['createdAt', 'DESC']],
+    });
+    return res.json(success(words));
+  } catch (err) {
+    return res.json(error('获取错词失败', err));
+  }
+}
+
+// DELETE /api/wrong-words/:id
+async function deleteWrongWord(req, res) {
+  try {
+    const { id } = req.params;
+    await WrongWord.destroy({ where: { id, userId: req.userId } });
+    return res.json(success(null, '删除成功'));
+  } catch (err) {
+    return res.json(error('删除失败', err));
+  }
+}
+
+module.exports = { addWrongWord, getWrongWords, deleteWrongWord };

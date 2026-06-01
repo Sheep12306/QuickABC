@@ -4,8 +4,6 @@ const ctrl = require('../controllers/studyController');
 const router = Router();
 
 router.get('/progress/:bookId', ctrl.getBookProgress);
-router.post('/word-record', ctrl.saveWordRecord);
-router.get('/word-status', ctrl.getWordStatus);
 router.get('/learned-words/:bookId', ctrl.getLearnedWordIds);
 router.put('/learned-words/:bookId', ctrl.saveLearnedWords);
 router.get('/learn-record/:bookId', ctrl.getLearnRecord);

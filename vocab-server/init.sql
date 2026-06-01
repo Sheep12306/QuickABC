@@ -49,19 +49,6 @@ CREATE TABLE IF NOT EXISTS words (
   INDEX idx_book_id (book_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- 用户学习进度
-CREATE TABLE IF NOT EXISTS user_book_progress (
-  id INT AUTO_INCREMENT PRIMARY KEY,
-  user_id INT NOT NULL,
-  book_id INT NOT NULL,
-  today_learned INT DEFAULT 0,
-  total_learned INT DEFAULT 0,
-  accuracy DECIMAL(5,2) DEFAULT 0,
-  new_words_count INT DEFAULT 0,
-  review_count INT DEFAULT 0,
-  UNIQUE KEY uk_user_book (user_id, book_id)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
 -- 已学单词
 CREATE TABLE IF NOT EXISTS user_learned_words (
   id INT AUTO_INCREMENT PRIMARY KEY,
@@ -82,18 +69,6 @@ CREATE TABLE IF NOT EXISTS user_learn_records (
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
   updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   UNIQUE KEY uk_user_book (user_id, book_id)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
--- 单词学习记录
-CREATE TABLE IF NOT EXISTS word_study_records (
-  id INT AUTO_INCREMENT PRIMARY KEY,
-  user_id INT NOT NULL,
-  book_id INT NOT NULL,
-  word_id INT NOT NULL,
-  group_num INT DEFAULT 0,
-  status TINYINT DEFAULT 1,
-  study_time DATETIME DEFAULT CURRENT_TIMESTAMP,
-  INDEX idx_user_book_word (user_id, book_id, word_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- 词汇测试记录

@@ -1,4 +1,4 @@
-const { UserBookProgress, UserLearnedWords, UserLearnRecord, WordStudyRecord } = require('../../models');
+const { UserLearnedWords, UserLearnRecord } = require('../../models');
 const { success, error } = require('../utils/response');
 
 // GET /api/study/progress/:bookId
@@ -36,47 +36,6 @@ async function getBookProgress(req, res) {
     }));
   } catch (err) {
     return res.json(error('获取学习数据失败', err));
-  }
-}
-
-// POST /api/study/word-record
-async function saveWordRecord(req, res) {
-  try {
-    const { bookId, wordId, status } = req.body;
-
-    const existing = await WordStudyRecord.findOne({
-      where: { userId: req.userId, bookId, wordId },
-    });
-
-    if (existing) {
-      await existing.update({ status, studyTime: new Date() });
-    } else {
-      await WordStudyRecord.create({
-        userId: req.userId,
-        bookId,
-        wordId,
-        status,
-        studyTime: new Date(),
-      });
-    }
-
-    return res.json(success(null, '学习记录同步成功'));
-  } catch (err) {
-    return res.json(error('同步学习记录失败', err));
-  }
-}
-
-// GET /api/study/word-status
-async function getWordStatus(req, res) {
-  try {
-    const { bookId, groupNum } = req.query;
-    const records = await WordStudyRecord.findAll({
-      where: { userId: req.userId, bookId, groupNum: parseInt(groupNum, 10) || 0 },
-    });
-
-    return res.json(success(records, '获取学习状态成功'));
-  } catch (err) {
-    return res.json(error('获取学习状态失败', err));
   }
 }
 
@@ -167,8 +126,6 @@ async function saveLearnRecord(req, res) {
 
 module.exports = {
   getBookProgress,
-  saveWordRecord,
-  getWordStatus,
   getLearnedWordIds,
   saveLearnedWords,
   getLearnRecord,

@@ -46,8 +46,6 @@ module.exports = {
 
   // 学习进度
   getBookLearningData: (bookId) => request('GET', `/study/progress/${bookId}`),
-  saveWordRecord: (data) => request('POST', '/study/word-record', data),
-  getWordStudyStatus: (data) => request('GET', `/study/word-status?bookId=${data.bookId}&groupNum=${data.groupNum || 0}`),
 
   // 已学单词
   getLearnedWordIds: (bookId, groupNum) => request('GET', `/study/learned-words/${bookId}?groupNum=${groupNum}`),
@@ -68,6 +66,8 @@ module.exports = {
   saveVocabTestRecord: (score, testTime) => request('POST', '/vocab-test/records', { score, testTime }),
 
   // 错词 + 题库
+  getWrongWords: () => request('GET', '/wrong-words'),
   addWrongWord: (word) => request('POST', '/wrong-words', { word }),
+  deleteWrongWord: (id) => request('DELETE', `/wrong-words/${id}`),
   getQuestionList: (scopeIds) => request('GET', `/questions?scopeIds=${scopeIds.join(',')}`),
 };
