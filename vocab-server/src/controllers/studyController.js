@@ -13,7 +13,7 @@ async function getBookProgress(req, res) {
     console.log(`[getBookProgress] found ${records.length} records`);
 
     const allIds = new Set();
-    let todayCount = 0;
+    const todayIds = new Set();
     const todayStr = new Date().toDateString();
 
     records.forEach(r => {
@@ -21,14 +21,14 @@ async function getBookProgress(req, res) {
       console.log(`  groupNum=${r.groupNum}, wordIds=${JSON.stringify(ids)}`);
       ids.forEach(id => allIds.add(id));
       if (r.updatedAt && new Date(r.updatedAt).toDateString() === todayStr) {
-        todayCount += ids.length;
+        ids.forEach(id => todayIds.add(id));
       }
     });
 
-    console.log(`[getBookProgress] totalLearned=${allIds.size}, todayLearned=${todayCount}`);
+    console.log(`[getBookProgress] totalLearned=${allIds.size}, todayLearned=${todayIds.size}`);
 
     return res.json(success({
-      todayLearned: todayCount,
+      todayLearned: todayIds.size,
       totalLearned: allIds.size,
       accuracy: 0,
       newWordsCount: 0,

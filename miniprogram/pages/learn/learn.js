@@ -102,6 +102,7 @@ Page({
       if (themeIdx !== this.data.themeIdx) {
         this.setData({ themeIdx: themeIdx });
       }
+      this.loadTodayLearned();
     },
 
     loadTodayLearned: async function() {
@@ -306,9 +307,10 @@ Page({
       const wordIds = learnedWords.map(word => word.id);
       api.saveLearnedWords(bookId, currentGroup, wordIds).then(res => {
         console.log('saved:', res);
-        this.loadTodayLearned();
       }).catch(err => {
         console.error('save failed:', err);
+      }).finally(() => {
+        this.loadTodayLearned();
       });
     },
 
