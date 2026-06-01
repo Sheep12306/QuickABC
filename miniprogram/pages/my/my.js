@@ -63,8 +63,7 @@ Page({
     loadLocalStats() {
       try {
         this.setData({
-          todayWords: wx.getStorageSync('todayLearned') || 0,
-          totalWords: wx.getStorageSync('totalLearned') || 0,
+          todayWords: wx.getStorageSync('totalLearned') || 0,
           accuracy: wx.getStorageSync('accuracy') || 0,
           streakDays: wx.getStorageSync('checkInDays') || 0,
           wrongWordsCount: (wx.getStorageSync('wrong_words') || []).length,

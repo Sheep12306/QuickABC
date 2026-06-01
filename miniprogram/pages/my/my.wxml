@@ -22,7 +22,7 @@
   <view class="stats-row">
     <view class="stat-card stat-main">
       <text class="stat-num" style="color:{{themeColors[themeIdx].accent}};">{{todayWords}}</text>
-      <text class="stat-label">今日已背</text>
+      <text class="stat-label">累计已背</text>
     </view>
     <view class="stat-card stat-main" bindtap="goToVocabDetail">
       <text class="stat-num" style="color:{{themeColors[themeIdx].accent}};">{{totalWords}}</text>
