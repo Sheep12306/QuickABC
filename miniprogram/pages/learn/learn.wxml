@@ -3,7 +3,7 @@
   <view class="learn-header">
     <view class="nav-left">
       <text class="book-name">{{currentBook.name}}</text>
-      <text class="group-text">第{{currentGroup}}组<text class="today-badge"> 今日已背{{todayLearned}}</text></text>
+      <text class="group-text">第{{currentGroup}}组<text class="today-badge"> 已背{{todayLearned}}</text></text>
     </view>
     <view class="nav-right">
       <view class="nav-review" bindtap="handleReviewButton"
