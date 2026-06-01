@@ -93,29 +93,26 @@ Page({
 
     async loadBookLearningData(bookId) {
       try {
-        // 从已加载的词表拿 totalWords
         const fullBook = this.data.wordBooks.find(b => b.id === bookId);
         const totalWords = fullBook?.totalWords || this.data.currentBook.totalWords || 0;
 
         const res = await api.getBookLearningData(bookId);
         if (res.code === 200) {
           const data = res.data;
-          const actualTotal = totalWords || 1; // 兜底防除零
-          const actualProgress = Math.round((data.totalLearned || 0) / actualTotal * 100);
-          const progress = actualTotal > 0 ? Math.floor(actualProgress / 10) * 10 : 0;
+          const totalLearned = data.totalLearned || 0;
+          const progress = totalWords > 0 ? Math.round(totalLearned / totalWords * 100) : 0;
 
           this.setData({
             todayLearned: data.todayLearned || 0,
-            totalLearned: data.totalLearned || 0,
+            totalLearned,
             accuracy: data.accuracy || 0,
             newWordsCount: data.newWordsCount || 0,
             reviewCount: data.reviewCount || 0,
             'currentBook.progress': progress,
-            'currentBook.totalWords': actualTotal > 1 ? actualTotal : 0,
+            'currentBook.totalWords': totalWords,
           });
-          // 同步到本地，供 my 页面读取
           wx.setStorageSync('todayLearned', data.todayLearned || 0);
-          wx.setStorageSync('totalLearned', data.totalLearned || 0);
+          wx.setStorageSync('totalLearned', totalLearned);
         }
       } catch (err) {
         console.error('加载学习数据失败:', err);
