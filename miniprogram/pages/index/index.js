@@ -295,6 +295,24 @@ Page({
       });
     },
 
+    editNickname: function() {
+      const that = this;
+      wx.showModal({
+        title: '修改昵称',
+        editable: true,
+        placeholderText: '请输入昵称',
+        content: that.data.userInfo.nickname || '',
+        success: function(res) {
+          if (res.confirm && res.content && res.content.trim()) {
+            const nickname = res.content.trim();
+            that.setData({ 'userInfo.nickname': nickname });
+            wx.setStorageSync('userInfo', that.data.userInfo);
+            wx.showToast({ title: '昵称已更新', icon: 'success' });
+          }
+        }
+      });
+    },
+
     goToVocabBook: function() {
       wx.navigateTo({ url: '/pages/wordBookList/wordBookList' });
     },
