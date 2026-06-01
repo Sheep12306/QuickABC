@@ -201,9 +201,8 @@ Page({
 
       wx.showActionSheet({
         itemList: this.data.wordBooks.map(book => `${book.name} (${book.totalWords || 0}词)`),
-        success: function(res) {
+        success: async function(res) {
           const selectedBook = that.data.wordBooks[res.tapIndex];
-          // 先清零旧书数据，避免 setData 浅合并导致残留
           that.setData({
             currentBook: selectedBook,
             'currentBook.progress': 0,
@@ -211,8 +210,8 @@ Page({
             todayLearned: 0
           });
           wx.setStorageSync('currentBook', selectedBook);
-          that.loadBookLearningData(selectedBook.id);
-          that.loadPreviewWords(selectedBook.id);
+          await that.loadBookLearningData(selectedBook.id);
+          await that.loadPreviewWords(selectedBook.id);
           wx.showToast({ title: `已切换到 ${selectedBook.name}`, icon: 'success' });
         },
         fail: function(err) {
