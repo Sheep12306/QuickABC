@@ -1,13 +1,21 @@
 <view class="home-bg" style="background:{{cardThemes[cardThemeIndex].bg}};">
   <view class="home-content">
 
+    <!-- 顶部问候区 -->
+    <view class="greeting-section">
+      <view class="greeting-bubble" bindtap="editNickname" style="background:{{cardThemes[cardThemeIndex].tagBg}};">
+        <text class="greeting-bubble-text" style="color:{{cardThemes[cardThemeIndex].accent}};">嗨，{{userInfo.nickname || '英语学习者'}}</text>
+      </view>
+    </view>
+
     <!-- 主学习卡片（放大 + 动态背景） -->
     <view class="main-card" style="background:{{cardThemes[cardThemeIndex].cardBg}};">
       <view class="main-card-header">
+        <view class="main-avatar">
+          <text class="main-avatar-text">{{userInfo.nickname ? userInfo.nickname.substring(0, 2) : '英语学习者'}}</text>
+        </view>
         <view class="main-user-info">
-          <view class="greeting-bubble" bindtap="editNickname" style="background:{{cardThemes[cardThemeIndex].tagBg}};">
-            <text class="greeting-bubble-text" style="color:{{cardThemes[cardThemeIndex].accent}};">嗨，{{userInfo.nickname || '英语学习者'}}</text>
-          </view>
+          <text class="main-user-name">英语学习者</text>
           <text class="main-user-meta">Lv.{{userLevel}}  已打卡 {{streakDays}} 天</text>
         </view>
         <view class="main-progress-right">

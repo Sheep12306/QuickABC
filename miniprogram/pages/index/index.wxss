@@ -40,17 +40,23 @@
   padding: 0 28rpx 40rpx;
 }
 
-/* ===== 顶部问候气泡 ===== */
+/* ===== 顶部问候区 ===== */
+.greeting-section {
+  display: flex;
+  align-items: center;
+  padding: 36rpx 8rpx 20rpx;
+}
+
 .greeting-bubble {
   display: inline-flex;
   align-items: center;
-  padding: 12rpx 28rpx;
+  padding: 14rpx 30rpx;
   background: rgba(67, 160, 71, 0.10);
-  border-radius: 28rpx;
+  border-radius: 30rpx;
 }
 
 .greeting-bubble-text {
-  font-size: 32rpx;
+  font-size: 34rpx;
   font-weight: 600;
   color: #43A047;
 }
@@ -88,14 +94,40 @@
   z-index: 2;
 }
 
+.main-avatar {
+  width: 92rpx;
+  height: 92rpx;
+  border-radius: 46rpx;
+  background: linear-gradient(135deg, #A5D6A7, #66BB6A);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  box-shadow: 0 4rpx 16rpx rgba(67, 160, 71, 0.2);
+}
+
+.main-avatar-text {
+  font-size: 34rpx;
+  font-weight: 600;
+  color: white;
+}
+
 .main-user-info {
+  margin-left: 18rpx;
   flex: 1;
+}
+
+.main-user-name {
+  font-size: 36rpx;
+  font-weight: 700;
+  color: #2C3E2D;
+  display: block;
 }
 
 .main-user-meta {
   font-size: 26rpx;
   color: #6A7B6B;
-  margin-top: 10rpx;
+  margin-top: 6rpx;
 }
 
 .main-progress-right {
