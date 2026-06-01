@@ -36,10 +36,13 @@ Page({
             lastWordIndex: learnRecord.lastWordIndex,
             learnedWords: learnRecord.learnedWords
           }, () => this.loadWords(learnRecord.lastGroup));
+          return;
         }
       } catch (err) {
         console.error('恢复记录失败:', err);
       }
+      // 无云端记录，回退到本地恢复
+      this.restoreLearnRecord();
     },
 
     restoreLearnRecord: function () {
@@ -77,14 +80,8 @@ Page({
       const themeIdx = getApp().globalData.cardThemeIndex || 0;
       this.setData({ themeIdx: themeIdx });
 
-      // 从 index 预览传入的起始分组
-      const startGroup = parseInt(options.startGroup) || 0;
-      if (startGroup > 0) {
-        this.setData({ currentGroup: startGroup });
-        this.loadWords(startGroup);
-      } else {
-        this.restoreLearnRecord();
-      }
+      // 优先从服务端恢复学习进度，无记录时从本地恢复
+      this.restoreFromCloud();
 
       this.innerAudioContext = wx.createInnerAudioContext();
       this.innerAudioContext.onPlay(() => console.log('audio play'));

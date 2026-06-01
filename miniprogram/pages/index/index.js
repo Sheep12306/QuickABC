@@ -45,7 +45,10 @@ Page({
       if (themeIdx !== this.data.cardThemeIndex) {
         this.setData({ cardThemeIndex: themeIdx });
       }
-      this.updateLearningData();
+      if (this.data.currentBook.id) {
+        this.loadBookLearningData(this.data.currentBook.id);
+        this.loadPreviewWords(this.data.currentBook.id);
+      }
     },
 
     async loadWordBooksFromDB() {
@@ -116,10 +119,25 @@ Page({
       }
     },
 
-    // 加载预览单词（取第一组 15 个词供滚动展示）
+    // 加载预览单词（从当前学习进度所在分组取词）
     async loadPreviewWords(bookId) {
       try {
-        const res = await api.getWordsByBookId({ bookId, groupNum: 1, groupSize: 15 });
+        // 优先读本地（learn 页 onHide 同步写入的，无延迟）
+        let currentGroup = 1;
+        const localRecord = wx.getStorageSync(`learnRecord_${bookId}`);
+        if (localRecord && localRecord.lastGroup) {
+          currentGroup = localRecord.lastGroup;
+        } else {
+          // 本地没有则从服务端取
+          try {
+            const recordRes = await api.getLearnRecord(bookId);
+            if (recordRes.code === 200 && recordRes.data) {
+              currentGroup = recordRes.data.learnRecord.lastGroup || 1;
+            }
+          } catch (e) { /* ignore */ }
+        }
+
+        const res = await api.getWordsByBookId({ bookId, groupNum: currentGroup, groupSize: 15 });
         if (res.code === 200 && res.data.length > 0) {
           const words = res.data.map(w => ({
             word: w.word,
@@ -209,13 +227,8 @@ Page({
         return;
       }
 
-      // 当前高亮单词的索引 → 计算所属分组
-      const activeIndex = this.data.previewStart + 1;
-      const groupSize = 5;
-      const startGroup = Math.floor(activeIndex / groupSize) + 1;
-
       wx.navigateTo({
-        url: `/pages/learn/learn?bookId=${currentBook.id}&startGroup=${startGroup}&mode=normal`
+        url: `/pages/learn/learn?bookId=${currentBook.id}&mode=normal`
       });
     },
 
