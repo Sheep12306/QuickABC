@@ -15,12 +15,12 @@
       <text>暂无词汇量测试记录，快去测试吧</text>
     </view>
     <view class="history-list" wx:else>
-      <view class="history-item" wx:for="{{vocabHistory}}" wx:key="index">
+      <view class="history-item" wx:for="{{vocabHistory}}" wx:key="id" wx:if="{{index < 10}}" data-record="{{item}}" bindtap="showRecordDetail">
         <view class="item-left">
           <text class="test-time">{{item.testTime}}</text>
-          <text class="test-desc">词汇量测试</text>
+          <text class="test-desc">词汇量测试{{item.bookResults ? ' · ' + item.bookResults.length + '本书' : ''}}</text>
         </view>
-        <text class="test-score" style="color:{{themeColors[themeIdx].accent}};">{{item.score}} 个</text>
+        <text class="test-score" style="color:{{themeColors[themeIdx].accent}};">{{item.estimatedVocab || item.score}} 词</text>
       </view>
     </view>
   </view>

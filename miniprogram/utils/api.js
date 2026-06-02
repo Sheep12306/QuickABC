@@ -87,6 +87,8 @@ module.exports = {
   // 词汇测试
   getVocabTestRecords: () => request('GET', '/vocab-test/records'),
   saveVocabTestRecord: (score, testTime) => request('POST', '/vocab-test/records', { score, testTime }),
+  startVocabTest: () => request('GET', '/vocab-test/start'),
+  submitVocabTest: (answers) => request('POST', '/vocab-test/submit', { answers }),
 
   // 错词 + 题库
   getWrongWords: () => request('GET', '/wrong-words'),

@@ -37,10 +37,13 @@ Page({
         if (res.code === 200) {
           const records = res.data || [];
           const vocabHistory = records.map(record => ({
+            id: record.id,
             testTime: record.testTime,
-            score: record.score
+            score: record.score,
+            estimatedVocab: record.estimatedVocab || record.score,
+            bookResults: record.bookResults ? JSON.parse(record.bookResults) : null,
           }));
-          const lastVocabScore = vocabHistory.length > 0 ? vocabHistory[0].score : 0;
+          const lastVocabScore = vocabHistory.length > 0 ? vocabHistory[0].estimatedVocab : 0;
           this.setData({ lastVocabScore, vocabHistory });
           wx.setStorageSync('lastVocabScore', lastVocabScore);
           wx.setStorageSync('vocabHistory', vocabHistory);
@@ -56,6 +59,12 @@ Page({
       } finally {
         wx.hideLoading();
       }
+    },
+
+    showRecordDetail(e) {
+      const record = e.currentTarget.dataset.record;
+      if (!record || !record.bookResults) return;
+      // 有详细数据才展示
     },
 
     goBack() {
