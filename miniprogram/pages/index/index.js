@@ -17,6 +17,7 @@ Page({
       wordBooks: [],
       newWordsCount: 0,
       reviewCount: 0,
+      lastGroup: 1,
 
       // 单词预览
       previewWords: [],       // 全量预览词
@@ -152,6 +153,7 @@ Page({
             }
           } catch (e) { /* ignore */ }
         }
+        this.setData({ lastGroup: currentGroup });
 
         // 加载当前组 + 前一 + 后一，每组 5 词（与 learn 页 groupSize=5 一致）
         const groupNums = [];
@@ -271,10 +273,7 @@ Page({
         return;
       }
 
-      // 高亮词所在分组 = baseGroup + floor(highlightedIndex / 5)
-      const highlightedIndex = this.data.previewStart + 1;
-      const baseGroup = this.data._previewBaseGroup || 1;
-      const startGroup = baseGroup + Math.floor(highlightedIndex / 5);
+      const startGroup = this.data.lastGroup || 1;
 
       wx.navigateTo({
         url: `/pages/learn/learn?bookId=${currentBook.id}&startGroup=${startGroup}&mode=normal`
