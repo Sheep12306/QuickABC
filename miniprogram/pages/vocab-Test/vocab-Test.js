@@ -46,7 +46,7 @@ Page({
       const res = await api.startVocabTest();
       if (res.code === 200 && res.data) {
         const words = res.data.words || [];
-        this.setData({ words, phase: 'testing', currentIndex: 0 });
+        this.setData({ words, phase: 'testing', currentIndex: 0, currentWord: words[0] || null });
       } else {
         wx.showToast({ title: res.msg || '生成失败', icon: 'none' });
       }
@@ -58,56 +58,60 @@ Page({
     }
   },
 
-  get currentWord() {
+  getCurrentWord: function() {
     return this.data.words[this.data.currentIndex] || null;
   },
 
-  get answeredCount() {
+  getAnsweredCount: function() {
     return Object.keys(this.data.answers).length;
   },
 
-  get allAnswered() {
-    return this.data.words.length > 0 && this.answeredCount >= this.data.words.length;
+  isAllAnswered: function() {
+    return this.data.words.length > 0 && this.getAnsweredCount() >= this.data.words.length;
   },
 
   selectAnswer(e) {
     const { answer } = e.currentTarget.dataset;
     const { currentIndex } = this.data;
-    const word = this.currentWord;
+    const word = this.getCurrentWord();
     if (!word) return;
 
     this.data.answers[word.id] = answer;
-    this.setData({ answers: this.data.answers });
+    const allDone = this.isAllAnswered();
+    this.setData({ answers: this.data.answers, allAnswered: allDone });
 
     // 自动跳到下一题
     if (currentIndex < this.data.words.length - 1) {
       setTimeout(() => {
-        this.setData({ currentIndex: currentIndex + 1 });
+        const nextIdx = currentIndex + 1;
+        this.setData({ currentIndex: nextIdx, currentWord: this.data.words[nextIdx] });
       }, 200);
     }
   },
 
   prevWord() {
     if (this.data.currentIndex > 0) {
-      this.setData({ currentIndex: this.data.currentIndex - 1 });
+      const newIdx = this.data.currentIndex - 1;
+      this.setData({ currentIndex: newIdx, currentWord: this.data.words[newIdx] });
     }
   },
 
   nextWord() {
     if (this.data.currentIndex < this.data.words.length - 1) {
-      this.setData({ currentIndex: this.data.currentIndex + 1 });
+      const newIdx = this.data.currentIndex + 1;
+      this.setData({ currentIndex: newIdx, currentWord: this.data.words[newIdx] });
     }
   },
 
   jumpTo(e) {
     const index = e.currentTarget.dataset.index;
     if (index >= 0 && index < this.data.words.length) {
-      this.setData({ currentIndex: index });
+      this.setData({ currentIndex: index, currentWord: this.data.words[index] });
     }
   },
 
   async submitTest() {
-    if (!this.allAnswered) {
+    if (!this.isAllAnswered()) {
       wx.showToast({ title: '请答完所有题目', icon: 'none' });
       return;
     }

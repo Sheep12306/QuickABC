@@ -60,7 +60,7 @@
     <!-- 提交按钮 -->
     <view class="submit-btn {{allAnswered ? '' : 'disabled'}}" bindtap="submitTest"
           style="{{allAnswered ? 'background:' + themeColors[themeIdx].accent + ';' : ''}}">
-      <text class="submit-text">{{allAnswered ? '提交答案 (' + words.length + '/' + words.length + ')' : '请答完所有题目 (' + Object.keys(answers).length + '/' + words.length + ')'}}</text>
+      <text class="submit-text">提交答案 ({{allAnswered ? words.length : 0}}/{{words.length}})</text>
     </view>
   </view>
 
