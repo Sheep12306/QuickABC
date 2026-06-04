@@ -23,10 +23,12 @@
       <text class="quiz-word">{{currentWord.word}}</text>
       <text class="quiz-phonetic" style="color:{{themeColors[themeIdx].accent}};">[{{currentWord.phonetic}}]</text>
 
-      <!-- 答完后显示意思 -->
-      <view class="quiz-reveal" wx:if="{{showMeaning}}">
-        <view class="reveal-divider"></view>
-        <text class="quiz-meaning">{{currentWord.part}} {{currentWord.meaning}}</text>
+      <!-- 意思区 — 始终占位，避免跳转 -->
+      <view class="quiz-reveal">
+        <block wx:if="{{showMeaning}}">
+          <view class="reveal-divider"></view>
+          <text class="quiz-meaning">{{currentWord.part}} {{currentWord.meaning}}</text>
+        </block>
       </view>
     </view>
 
