@@ -71,7 +71,7 @@
     <view class="result-header">
       <text class="result-badge" style="color:{{themeColors[themeIdx].accent}};">{{levelBadge}}</text>
       <text class="result-title">{{levelName}}</text>
-      <text class="result-vocab" style="color:{{themeColors[themeIdx].accent}};">≈ {{estimatedVocab}}</text>
+      <text class="result-vocab" style="color:{{themeColors[themeIdx].accent}};">{{estimatedVocab}}</text>
       <text class="result-vocab-label">估算词汇量 · 基于 {{totalCount}} 个单词</text>
     </view>
 
