@@ -47,6 +47,12 @@
         </view>
         <text class="tool-label">词汇测试</text>
       </view>
+      <view class="tool-item" bindtap="goToStudyPlan">
+        <view class="tool-icon-circle" style="background:{{themeColors[themeIdx].light}};">
+          <text class="tool-icon-inner" style="color:{{themeColors[themeIdx].accent}};">P</text>
+        </view>
+        <text class="tool-label">学习计划</text>
+      </view>
       <view class="tool-item" bindtap="checkInStats">
         <view class="tool-icon-circle" style="background:{{themeColors[themeIdx].light}};">
           <text class="tool-icon-inner" style="color:{{themeColors[themeIdx].accent}};">C</text>

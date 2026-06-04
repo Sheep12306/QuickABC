@@ -22,7 +22,9 @@
     "pages/levelAnswer/levelAnswer",
     "pages/examSelect/examSelect",
     "pages/examAnswer/examAnswer",
-    "pages/wordBookList/wordBookList"
+    "pages/wordBookList/wordBookList",
+    "pages/study-plan/study-plan",
+    "pages/checkin-poster/checkin-poster"
   ],
   "window": {
     "navigationBarTitleText": "快背单词",

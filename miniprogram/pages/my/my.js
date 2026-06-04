@@ -306,6 +306,9 @@ Page({
     goToVocabTest() {
       wx.navigateTo({ url: '/pages/vocab-Test/vocab-Test' });
     },
+    goToStudyPlan() {
+      wx.navigateTo({ url: '/pages/study-plan/study-plan' });
+    },
     goToStudySetting() {
       wx.navigateTo({ url: '/pages/studySetting/studySetting' });
     },

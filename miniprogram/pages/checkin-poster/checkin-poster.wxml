@@ -1,0 +1,26 @@
+<view class="poster-bg" style="background:{{cardThemes[themeIdx].bg}};">
+
+  <view class="poster-title-row">
+    <text class="poster-title">打卡成功</text>
+    <text class="poster-sub">已连续打卡 {{checkInDays}} 天，今日 {{todayLearned}} 词</text>
+  </view>
+
+  <view class="canvas-wrap">
+    <canvas canvas-id="posterCanvas" class="poster-canvas" style="width:375px;height:580px;"></canvas>
+    <image wx:if="{{posterReady}}" class="poster-preview" src="{{posterPath}}" mode="widthFix"/>
+  </view>
+
+  <view class="poster-actions">
+    <view class="poster-btn save" bindtap="savePoster" style="background:{{themeColors[themeIdx].accent}};">
+      <text class="poster-btn-text">保存到相册</text>
+    </view>
+    <button class="poster-btn share-btn" open-type="share">
+      <text class="poster-btn-text">分享给好友</text>
+    </button>
+  </view>
+
+  <view class="poster-back" bindtap="goBack">
+    <text class="poster-back-text">返回学习</text>
+  </view>
+
+</view>

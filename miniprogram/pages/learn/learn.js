@@ -10,6 +10,8 @@ Page({
       isLoading: false,
       bookId: '',
       todayLearned: 0,
+      dailyGoal: 20,
+      dailyGoalReached: false,
       groupSize: 5,
       themeColors: [
         { accent: '#43A047', light: '#E8F5E9', progressBg: 'rgba(67,160,71,0.12)' },
@@ -107,11 +109,13 @@ Page({
 
     loadTodayLearned: async function() {
       const { bookId } = this.data;
+      const dailyGoal = wx.getStorageSync('dailyGoal') || 20;
       if (!bookId) return;
       try {
         const res = await api.getBookLearningData(bookId);
         if (res.code === 200) {
-          this.setData({ todayLearned: res.data.todayLearned || 0 });
+          const todayLearned = res.data.todayLearned || 0;
+          this.setData({ todayLearned, dailyGoal, dailyGoalReached: todayLearned >= dailyGoal });
         }
       } catch (e) { /* ignore */ }
     },
@@ -340,8 +344,39 @@ Page({
       }
       this.saveCurrentGroupLearnedRecord();
       this.saveLearnRecord();
+
+      // 检查每日目标是否达成
+      const dailyGoal = wx.getStorageSync('dailyGoal') || 20;
+      if (this.data.todayLearned >= dailyGoal) {
+        this.goCheckIn();
+        return;
+      }
+
       const nextGroup = this.data.currentGroup + 1;
       this.loadWords(nextGroup);
+    },
+
+    goCheckIn: function () {
+      const checkInDays = wx.getStorageSync('checkInDays') || 0;
+      const todayLearned = this.data.todayLearned;
+      // 更新连续打卡天数
+      const today = new Date().toDateString();
+      const lastCheckDate = wx.getStorageSync('lastCheckDate') || '';
+      if (today !== lastCheckDate) {
+        const newDays = checkInDays + 1;
+        wx.setStorageSync('checkInDays', newDays);
+        wx.setStorageSync('lastCheckDate', today);
+        // 同步到服务端
+        const api = require('../../utils/api');
+        api.saveStudyData({ checkInDays: newDays }).catch(() => {});
+        wx.navigateTo({
+          url: '/pages/checkin-poster/checkin-poster?checkInDays=' + newDays + '&todayLearned=' + todayLearned
+        });
+      } else {
+        wx.navigateTo({
+          url: '/pages/checkin-poster/checkin-poster?checkInDays=' + checkInDays + '&todayLearned=' + todayLearned
+        });
+      }
     },
 
     preGroup: function () {

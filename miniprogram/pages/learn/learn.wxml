@@ -51,7 +51,7 @@
 
     <view class="btn-control {{!canNext ? 'disabled' : ''}}"
           bindtap="nextGroup">
-      <text>下一组</text>
+      <text>{{todayLearned >= dailyGoal ? '打卡' : '下一组'}}</text>
     </view>
   </view>
 </view>

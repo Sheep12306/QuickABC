@@ -1,0 +1,44 @@
+<view class="plan-bg" style="background:{{cardThemes[themeIdx].bg}};">
+
+  <view class="plan-header">
+    <text class="plan-title">学习计划</text>
+    <text class="plan-desc">设置每日背单词目标，达成后即可打卡</text>
+  </view>
+
+  <!-- 当前目标展示 -->
+  <view class="goal-card">
+    <text class="goal-label">当前每日目标</text>
+    <view class="goal-display" style="color:{{themeColors[themeIdx].accent}};">
+      <text class="goal-num">{{dailyGoal}}</text>
+      <text class="goal-unit">词 / 天</text>
+    </view>
+    <text class="goal-hint">目标必须是 5 的倍数</text>
+  </view>
+
+  <!-- 快速选择 -->
+  <view class="options-card">
+    <text class="options-title">快速选择</text>
+    <view class="options-grid">
+      <view class="option-btn {{dailyGoal === item ? 'active' : ''}}"
+            wx:for="{{quickOptions}}" wx:key="*this"
+            data-goal="{{item}}" bindtap="selectGoal"
+            style="{{dailyGoal === item ? 'background:' + themeColors[themeIdx].accent + ';color:#fff;' : ''}}">
+        <text class="option-text">{{item}} 词</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 自定义输入 -->
+  <view class="custom-card">
+    <text class="custom-label">自定义目标</text>
+    <view class="custom-row">
+      <input class="custom-input" type="number" placeholder="输入5的倍数" value="{{dailyGoal}}"
+             bindinput="onCustomInput" confirm-type="done"/>
+      <text class="custom-unit">词 / 天</text>
+    </view>
+    <view class="custom-save" bindtap="saveCustom" style="background:{{themeColors[themeIdx].accent}};">
+      <text class="custom-save-text">保存</text>
+    </view>
+  </view>
+
+</view>
