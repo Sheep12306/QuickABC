@@ -115,7 +115,7 @@
   line-height: 1.6;
 }
 
-/* 三个选择按钮 — 竖排 */
+/* 三个选择按钮 — 竖排，统一底色 */
 .quiz-actions {
   display: flex;
   flex-direction: column;
@@ -128,49 +128,44 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.2s;
+  transition: all 0.25s ease;
+  background: rgba(0,0,0,0.04);
+  border: 3rpx solid transparent;
 }
 .quiz-btn:active {
-  opacity: 0.75;
   transform: scale(0.97);
-}
-.quiz-btn.know {
-  background: rgba(67,160,71,0.12);
-  border: 2rpx solid rgba(67,160,71,0.3);
-}
-.quiz-btn.dont-know {
-  background: rgba(244,67,54,0.08);
-  border: 2rpx solid rgba(244,67,54,0.2);
-}
-.quiz-btn.fuzzy {
-  background: rgba(255,152,0,0.06);
-  border: 2rpx solid rgba(255,152,0,0.15);
 }
 .quiz-btn-label {
   font-size: 32rpx;
   font-weight: 600;
+  color: #4A5B4B;
 }
-.quiz-btn.know .quiz-btn-label { color: #43A047; }
-.quiz-btn.dont-know .quiz-btn-label { color: #E53935; }
-.quiz-btn.fuzzy .quiz-btn-label { color: #FF9800; }
 
-/* 已作答提示 */
-.quiz-answered {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 12rpx;
+/* 选中高光 */
+.quiz-btn.picked { opacity: 0.4; }
+.quiz-btn.glow-green {
+  opacity: 1;
+  border-color: #43A047;
+  background: rgba(67,160,71,0.1);
+  box-shadow: 0 0 0 6rpx rgba(67,160,71,0.15);
 }
-.answered-label {
-  font-size: 24rpx;
-  color: #B0B8B0;
+.quiz-btn.glow-green .quiz-btn-label { color: #43A047; }
+
+.quiz-btn.glow-red {
+  opacity: 1;
+  border-color: #E53935;
+  background: rgba(229,57,53,0.08);
+  box-shadow: 0 0 0 6rpx rgba(229,57,53,0.12);
 }
-.answered-tag {
-  font-size: 28rpx;
-  font-weight: 600;
-  padding: 12rpx 36rpx;
-  border-radius: 20rpx;
+.quiz-btn.glow-red .quiz-btn-label { color: #E53935; }
+
+.quiz-btn.glow-orange {
+  opacity: 1;
+  border-color: #FF9800;
+  background: rgba(255,152,0,0.08);
+  box-shadow: 0 0 0 6rpx rgba(255,152,0,0.12);
 }
+.quiz-btn.glow-orange .quiz-btn-label { color: #FF9800; }
 
 /* ===== 中转站 ===== */
 .test-checkpoint {
