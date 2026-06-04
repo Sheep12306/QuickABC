@@ -30,16 +30,16 @@
       </view>
     </view>
 
-    <!-- 三个选择按钮（未作答时显示） -->
+    <!-- 三个选择按钮（未作答时显示）竖排 -->
     <view class="quiz-actions" wx:if="{{!showMeaning}}">
+      <view class="quiz-btn know" data-answer="know" bindtap="selectAnswer">
+        <text class="quiz-btn-label">认识</text>
+      </view>
       <view class="quiz-btn dont-know" data-answer="dontKnow" bindtap="selectAnswer">
         <text class="quiz-btn-label">不认识</text>
       </view>
       <view class="quiz-btn fuzzy" data-answer="fuzzy" bindtap="selectAnswer">
         <text class="quiz-btn-label">模糊</text>
-      </view>
-      <view class="quiz-btn know" data-answer="know" bindtap="selectAnswer">
-        <text class="quiz-btn-label">认识</text>
       </view>
     </view>
 

@@ -115,15 +115,15 @@
   line-height: 1.6;
 }
 
-/* 三个选择按钮 */
+/* 三个选择按钮 — 竖排 */
 .quiz-actions {
   display: flex;
-  gap: 18rpx;
+  flex-direction: column;
+  gap: 16rpx;
   margin-bottom: 24rpx;
 }
 .quiz-btn {
-  flex: 1;
-  padding: 28rpx 0;
+  padding: 32rpx 0;
   border-radius: 20rpx;
   display: flex;
   align-items: center;
@@ -132,27 +132,27 @@
 }
 .quiz-btn:active {
   opacity: 0.75;
-  transform: scale(0.96);
+  transform: scale(0.97);
+}
+.quiz-btn.know {
+  background: rgba(67,160,71,0.12);
+  border: 2rpx solid rgba(67,160,71,0.3);
 }
 .quiz-btn.dont-know {
   background: rgba(244,67,54,0.08);
-  border: 2rpx solid rgba(244,67,54,0.25);
+  border: 2rpx solid rgba(244,67,54,0.2);
 }
 .quiz-btn.fuzzy {
-  background: rgba(255,152,0,0.08);
-  border: 2rpx solid rgba(255,152,0,0.25);
-}
-.quiz-btn.know {
-  background: rgba(67,160,71,0.08);
-  border: 2rpx solid rgba(67,160,71,0.25);
+  background: rgba(255,152,0,0.06);
+  border: 2rpx solid rgba(255,152,0,0.15);
 }
 .quiz-btn-label {
-  font-size: 28rpx;
+  font-size: 32rpx;
   font-weight: 600;
 }
-.quiz-btn.dont-know .quiz-btn-label { color: #F44336; }
-.quiz-btn.fuzzy .quiz-btn-label { color: #FF9800; }
 .quiz-btn.know .quiz-btn-label { color: #43A047; }
+.quiz-btn.dont-know .quiz-btn-label { color: #E53935; }
+.quiz-btn.fuzzy .quiz-btn-label { color: #FF9800; }
 
 /* 已作答提示 */
 .quiz-answered {
