@@ -8,82 +8,85 @@
   </view>
 
   <!-- 答题中 -->
-  <view class="test-quiz" wx:if="{{phase === 'testing' && words.length > 0}}">
+  <view class="test-quiz" wx:if="{{phase === 'testing' && currentWord}}">
     <!-- 顶部进度 -->
     <view class="quiz-top">
-      <text class="quiz-back" bindtap="goBack">← 退出</text>
       <text class="quiz-progress">{{currentIndex + 1}} / {{words.length}}</text>
       <view class="quiz-progress-bar">
         <view class="quiz-progress-fill" style="width:{{(currentIndex + 1) / words.length * 100}}%;background:{{themeColors[themeIdx].accent}};"></view>
       </view>
+      <text class="quiz-accuracy-hint">已答 {{answeredCount}} 题，测越多越准</text>
     </view>
 
     <!-- 单词卡片 -->
-    <view class="quiz-card">
-      <view class="quiz-book-tag" style="background:{{themeColors[themeIdx].light}};color:{{themeColors[themeIdx].accent}};">
-        {{currentWord.bookName}}
-      </view>
+    <view class="quiz-card {{showMeaning ? 'revealed' : ''}}">
       <text class="quiz-word">{{currentWord.word}}</text>
-      <text class="quiz-phonetic">{{currentWord.phonetic}}</text>
-      <text class="quiz-meaning">{{currentWord.part}} {{currentWord.meaning}}</text>
+      <text class="quiz-phonetic" style="color:{{themeColors[themeIdx].accent}};">[{{currentWord.phonetic}}]</text>
+
+      <!-- 答完后显示意思 -->
+      <view class="quiz-reveal" wx:if="{{showMeaning}}">
+        <view class="reveal-divider"></view>
+        <text class="quiz-meaning">{{currentWord.part}} {{currentWord.meaning}}</text>
+      </view>
     </view>
 
-    <!-- 三个选择按钮 -->
-    <view class="quiz-actions">
-      <view class="quiz-btn dont-know {{answers[currentWord.id] === 'dontKnow' ? 'selected' : ''}}"
-            data-answer="dontKnow" bindtap="selectAnswer"
-            style="{{answers[currentWord.id] === 'dontKnow' ? 'background:#F44336;color:#fff;' : ''}}">
+    <!-- 三个选择按钮（未作答时显示） -->
+    <view class="quiz-actions" wx:if="{{!showMeaning}}">
+      <view class="quiz-btn dont-know" data-answer="dontKnow" bindtap="selectAnswer">
         <text class="quiz-btn-label">不认识</text>
       </view>
-      <view class="quiz-btn fuzzy {{answers[currentWord.id] === 'fuzzy' ? 'selected' : ''}}"
-            data-answer="fuzzy" bindtap="selectAnswer"
-            style="{{answers[currentWord.id] === 'fuzzy' ? 'background:#FF9800;color:#fff;' : ''}}">
+      <view class="quiz-btn fuzzy" data-answer="fuzzy" bindtap="selectAnswer">
         <text class="quiz-btn-label">模糊</text>
       </view>
-      <view class="quiz-btn know {{answers[currentWord.id] === 'know' ? 'selected' : ''}}"
-            data-answer="know" bindtap="selectAnswer"
-            style="{{answers[currentWord.id] === 'know' ? 'background:#43A047;color:#fff;' : ''}}">
+      <view class="quiz-btn know" data-answer="know" bindtap="selectAnswer">
         <text class="quiz-btn-label">认识</text>
       </view>
     </view>
 
-    <!-- 上一题/下一题 -->
-    <view class="quiz-nav">
-      <view class="nav-btn {{currentIndex === 0 ? 'disabled' : ''}}" bindtap="prevWord">
-        <text>← 上一题</text>
-      </view>
-      <view class="nav-btn {{currentIndex >= words.length - 1 ? 'disabled' : ''}}" bindtap="nextWord">
-        <text>下一题 →</text>
-      </view>
+    <!-- 已作答状态提示 -->
+    <view class="quiz-answered" wx:if="{{showMeaning}}">
+      <text class="answered-label">你的选择：</text>
+      <text class="answered-tag {{lastAnswer}}" style="{{lastAnswer === 'know' ? 'background:#43A047;color:#fff;' : lastAnswer === 'fuzzy' ? 'background:#FF9800;color:#fff;' : 'background:#F44336;color:#fff;'}}">{{lastAnswer === 'know' ? '✓ 认识' : lastAnswer === 'fuzzy' ? '~ 模糊' : '✗ 不认识'}}</text>
     </view>
+  </view>
 
-    <!-- 提交按钮 -->
-    <view class="submit-btn {{allAnswered ? '' : 'disabled'}}" bindtap="submitTest"
-          style="{{allAnswered ? 'background:' + themeColors[themeIdx].accent + ';' : ''}}">
-      <text class="submit-text">提交答案 ({{allAnswered ? words.length : 0}}/{{words.length}})</text>
+  <!-- 30词中转站 -->
+  <view class="test-checkpoint" wx:if="{{phase === 'checkpoint'}}">
+    <view class="checkpoint-card">
+      <text class="checkpoint-icon">🎯</text>
+      <text class="checkpoint-title">已测试 {{answeredCount}} 个单词</text>
+      <text class="checkpoint-desc">测的单词越多，词汇量估算越准确。还剩 {{words.length - answeredCount}} 个词未测。</text>
+      <view class="checkpoint-actions">
+        <view class="checkpoint-btn stop" bindtap="stopAndSubmit">
+          <text class="checkpoint-btn-text">就测到这里</text>
+        </view>
+        <view class="checkpoint-btn goon" bindtap="continueTest" style="background:{{themeColors[themeIdx].accent}};">
+          <text class="checkpoint-btn-text" style="color:#fff;">继续测试</text>
+        </view>
+      </view>
     </view>
   </view>
 
   <!-- 结果页 -->
   <view class="test-result" wx:if="{{phase === 'result'}}">
     <view class="result-header">
-      <text class="result-title">测试结果</text>
+      <text class="result-badge" style="color:{{themeColors[themeIdx].accent}};">{{levelBadge}}</text>
+      <text class="result-title">{{levelName}}</text>
       <text class="result-vocab" style="color:{{themeColors[themeIdx].accent}};">≈ {{estimatedVocab}}</text>
-      <text class="result-vocab-label">估算词汇量</text>
+      <text class="result-vocab-label">估算词汇量 · 基于 {{totalCount}} 个单词</text>
     </view>
 
     <!-- 各难度认识率 -->
     <view class="result-books">
-      <text class="result-section-title">各难度认识率</text>
+      <text class="result-section-title">各阶段认识率</text>
       <view class="book-bar-item" wx:for="{{bookResults}}" wx:key="bookId">
         <view class="book-bar-info">
           <text class="book-bar-name">{{item.bookName}}</text>
           <text class="book-bar-rate" style="color:{{themeColors[themeIdx].accent}};">{{item.rate}}%</text>
         </view>
         <view class="book-bar-track">
-          <view class="book-bar-fill" style="width:{{item.rate}}%;background:{{themeColors[themeIdx].accent}};"></view>
+          <view class="book-bar-fill" style="width:{{item.rate}}%;background:{{item.rate >= 80 ? '#43A047' : item.rate >= 50 ? '#FF9800' : '#F44336'}};"></view>
         </view>
-        <text class="book-bar-detail">{{item.score}} / {{item.count}} · 贡献 {{item.contribution}} 词</text>
       </view>
     </view>
 
@@ -92,7 +95,7 @@
       <text class="result-section-title">推荐学习</text>
       <view class="recommend-item" wx:for="{{recommendations}}" wx:key="bookId">
         <text class="recommend-name">{{item.bookName}}</text>
-        <text class="recommend-tip" style="color:{{themeColors[themeIdx].accent}};">认识率 {{item.rate}}%，建议优先学习</text>
+        <text class="recommend-tip" style="color:{{themeColors[themeIdx].accent}};">认识率 {{item.rate}}%</text>
       </view>
     </view>
 

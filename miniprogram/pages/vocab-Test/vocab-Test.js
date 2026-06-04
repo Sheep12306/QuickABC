@@ -1,5 +1,16 @@
 const api = require('../../utils/api');
 
+const CHECKPOINT_AT = 30;
+
+function getLevel(vocab) {
+  if (vocab < 500)  return { name: '词汇新手', badge: '🌱' };
+  if (vocab < 1500) return { name: '词汇初学者', badge: '📖' };
+  if (vocab < 3000) return { name: '词汇小能手', badge: '⭐' };
+  if (vocab < 5000) return { name: '词汇高手', badge: '🔥' };
+  if (vocab < 8000) return { name: '词汇大师', badge: '💎' };
+  return { name: '词汇专家', badge: '👑' };
+}
+
 Page({
   data: {
     themeIdx: 0,
@@ -18,17 +29,22 @@ Page({
       { bg: 'linear-gradient(175deg, #BBDEFB 0%, #E3F2FD 30%, #F5F8FC 100%)' }
     ],
 
-    // 状态: loading | testing | result
     phase: 'loading',
     words: [],
     currentIndex: 0,
+    currentWord: null,
     answers: {},
+    showMeaning: false,
+    lastAnswer: '',
+    answeredCount: 0,
 
     // 结果
     estimatedVocab: 0,
     bookResults: [],
     recommendations: [],
     totalCount: 0,
+    levelName: '',
+    levelBadge: '',
   },
 
   onLoad() {
@@ -46,7 +62,19 @@ Page({
       const res = await api.startVocabTest();
       if (res.code === 200 && res.data) {
         const words = res.data.words || [];
-        this.setData({ words, phase: 'testing', currentIndex: 0, currentWord: words[0] || null });
+        if (words.length === 0) {
+          wx.showToast({ title: '暂无词书数据', icon: 'none' });
+          return;
+        }
+        this.setData({
+          words,
+          phase: 'testing',
+          currentIndex: 0,
+          currentWord: words[0],
+          answers: {},
+          showMeaning: false,
+          answeredCount: 0,
+        });
       } else {
         wx.showToast({ title: res.msg || '生成失败', icon: 'none' });
       }
@@ -58,82 +86,96 @@ Page({
     }
   },
 
-  getCurrentWord: function() {
-    return this.data.words[this.data.currentIndex] || null;
-  },
-
-  getAnsweredCount: function() {
-    return Object.keys(this.data.answers).length;
-  },
-
-  isAllAnswered: function() {
-    return this.data.words.length > 0 && this.getAnsweredCount() >= this.data.words.length;
-  },
-
   selectAnswer(e) {
+    if (this.data.showMeaning) return; // 已经答过了
     const { answer } = e.currentTarget.dataset;
-    const { currentIndex } = this.data;
-    const word = this.getCurrentWord();
+    const word = this.data.currentWord;
     if (!word) return;
 
     this.data.answers[word.id] = answer;
-    const allDone = this.isAllAnswered();
-    this.setData({ answers: this.data.answers, allAnswered: allDone });
+    const cnt = Object.keys(this.data.answers).length;
 
-    // 自动跳到下一题
-    if (currentIndex < this.data.words.length - 1) {
-      setTimeout(() => {
-        const nextIdx = currentIndex + 1;
-        this.setData({ currentIndex: nextIdx, currentWord: this.data.words[nextIdx] });
-      }, 200);
-    }
+    this.setData({
+      answers: this.data.answers,
+      answeredCount: cnt,
+      showMeaning: true,
+      lastAnswer: answer,
+    });
+
+    // 答完后1.5秒自动跳到下一题
+    const idx = this.data.currentIndex;
+    setTimeout(() => {
+      if (this.data.phase !== 'testing') return;
+
+      // 到达 checkpoint
+      if (cnt >= CHECKPOINT_AT && !this.data._checkpointShown) {
+        this.setData({ phase: 'checkpoint', _checkpointShown: true });
+        return;
+      }
+
+      // 到达最后一题
+      if (idx >= this.data.words.length - 1) {
+        this.submitTest();
+        return;
+      }
+
+      // 下一题
+      const nextIdx = idx + 1;
+      this.setData({
+        currentIndex: nextIdx,
+        currentWord: this.data.words[nextIdx],
+        showMeaning: false,
+        lastAnswer: '',
+      });
+    }, 1500);
   },
 
-  prevWord() {
-    if (this.data.currentIndex > 0) {
-      const newIdx = this.data.currentIndex - 1;
-      this.setData({ currentIndex: newIdx, currentWord: this.data.words[newIdx] });
+  continueTest() {
+    const idx = this.data.currentIndex;
+    if (idx >= this.data.words.length - 1) {
+      this.submitTest();
+      return;
     }
+    const nextIdx = idx + 1;
+    this.setData({
+      phase: 'testing',
+      currentIndex: nextIdx,
+      currentWord: this.data.words[nextIdx],
+      showMeaning: false,
+      lastAnswer: '',
+    });
   },
 
-  nextWord() {
-    if (this.data.currentIndex < this.data.words.length - 1) {
-      const newIdx = this.data.currentIndex + 1;
-      this.setData({ currentIndex: newIdx, currentWord: this.data.words[newIdx] });
-    }
-  },
-
-  jumpTo(e) {
-    const index = e.currentTarget.dataset.index;
-    if (index >= 0 && index < this.data.words.length) {
-      this.setData({ currentIndex: index, currentWord: this.data.words[index] });
-    }
+  async stopAndSubmit() {
+    await this.submitTest();
   },
 
   async submitTest() {
-    if (!this.isAllAnswered()) {
-      wx.showToast({ title: '请答完所有题目', icon: 'none' });
+    const cnt = Object.keys(this.data.answers).length;
+    if (cnt === 0) {
+      wx.showToast({ title: '请先作答', icon: 'none' });
       return;
     }
 
     wx.showLoading({ title: '统计中...' });
     try {
       const answers = Object.entries(this.data.answers).map(([wordId, answer]) => ({
-        wordId: parseInt(wordId),
-        answer,
+        wordId: parseInt(wordId), answer,
       }));
 
       const res = await api.submitVocabTest(answers);
       if (res.code === 200 && res.data) {
         const d = res.data;
+        const level = getLevel(d.estimatedVocab || 0);
         this.setData({
           phase: 'result',
           estimatedVocab: d.estimatedVocab || 0,
           bookResults: d.bookResults || [],
           recommendations: d.recommendations || [],
           totalCount: d.totalCount || 0,
+          levelName: level.name,
+          levelBadge: level.badge,
         });
-        // 同步本地
         wx.setStorageSync('lastVocabScore', d.estimatedVocab);
         let history = wx.getStorageSync('vocabHistory') || [];
         history.unshift({ testTime: d.testTime, score: d.estimatedVocab });
@@ -149,19 +191,10 @@ Page({
     }
   },
 
-  answerLabel(answer) {
-    if (answer === 'know') return '认识';
-    if (answer === 'fuzzy') return '模糊';
-    if (answer === 'dontKnow') return '不认识';
-    return '';
-  },
-
-  goBack() {
-    wx.navigateBack();
-  },
+  goBack() { wx.navigateBack(); },
 
   retryTest() {
-    this.setData({ phase: 'loading', words: [], currentIndex: 0, answers: {} });
+    this.setData({ phase: 'loading', words: [], currentIndex: 0, answers: {}, _checkpointShown: false });
     this.startTest();
   },
 });
