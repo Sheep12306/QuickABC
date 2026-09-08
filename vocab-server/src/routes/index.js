@@ -9,6 +9,7 @@ const userRoutes = require('./user');
 const vocabTestRoutes = require('./vocabTest');
 const wrongWordRoutes = require('./wrongWords');
 const questionRoutes = require('./questions');
+const commuteRoutes = require('./commute');
 
 const router = Router();
 
@@ -23,5 +24,6 @@ router.use('/user', authMiddleware, userRoutes);
 router.use('/vocab-test', authMiddleware, vocabTestRoutes);
 router.use('/wrong-words', authMiddleware, wrongWordRoutes);
 router.use('/questions', authMiddleware, questionRoutes);
+router.use('/commute', authMiddleware, commuteRoutes);
 
 module.exports = router;
